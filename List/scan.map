@@ -1,0 +1,74 @@
+RAM Allocation [bytes]
+Variable                                                                          Address   Size
+------------------------------------------------------------------------------------------------
+KeyV                                                                              0x0160     100
+zna                                                                               0x01C4       1
+address                                                                           0x01C5       2
+addr                                                                              0x01C7       2
+paus                                                                              0x01C9       2
+add                                                                               0x01CB       2
+conv                                                                              0x01CD       5
+rx_buffer                                                                         0x01D2      48
+rx_wr_index                                                                       0x0202       1
+rx_rd_index                                                                       0x0203       1
+rx_counter                                                                        0x0204       1
+tx_buffer                                                                         0x0205       8
+tx_wr_index                                                                       0x020D       1
+tx_rd_index                                                                       0x020E       1
+tx_counter                                                                        0x020F       1
+_seed                                                                             0x0210       4
+_base_y                                                                           0x0214       4
+_lcd_x                                                                            0x0218       1
+_lcd_y                                                                            0x0219       1
+_lcd_maxx                                                                         0x021A       1
+
+EEPROM Allocation [bytes]
+Variable                                                                          Address   Size
+------------------------------------------------------------------------------------------------
+
+Register Allocation
+Variable                                                                          Register  Size
+------------------------------------------------------------------------------------------------
+read                                                                              R5           1
+kluch                                                                             R4           1
+k                                                                                 R7           1
+dat                                                                               R6           1
+addr0                                                                             R9           1
+addr1                                                                             R8           1
+n                                                                                 R11          1
+j                                                                                 R10          1
+i                                                                                 R13          1
+KeyVal                                                                            R12          1
+flag                                                                              R2.0      1bit
+ravno                                                                             R2.1      1bit
+enter                                                                             R2.2      1bit
+rx_buffer_overflow                                                                R2.3      1bit
+
+FLASH Allocation [words]
+Function                                                                          Address   Size
+------------------------------------------------------------------------------------------------
+read_adc                                                                          0x00115     14
+usart_rx_isr                                                                      0x00123     38
+getchar                                                                           0x00149     36
+usart_tx_isr                                                                      0x0016D     31
+putchar                                                                           0x0018C     37
+eep_read                                                                          0x001B1     14
+eep_write                                                                         0x001BF     10
+err                                                                               0x001C9     42
+Scan_Data                                                                         0x001F3     35
+main                                                                              0x00216    605
+itoa                                                                              0x00473     46
+_lcd_delay_G101                                                                   0x004A1      4
+_lcd_ready                                                                        0x004A5     17
+_lcd_write_nibble_G101                                                            0x004B6      8
+_lcd_write_data                                                                   0x004BE     14
+_lcd_read_nibble_G101                                                             0x004CC      7
+lcd_read_byte0_G101                                                               0x004D3      8
+lcd_gotoxy                                                                        0x004DB     18
+lcd_clear                                                                         0x004ED     15
+lcd_putchar                                                                       0x004FC     36
+lcd_puts                                                                          0x00520     15
+lcd_putsf                                                                         0x0052F     19
+_long_delay_G101                                                                  0x00542      5
+_lcd_init_write_G101                                                              0x00547     11
+lcd_init                                                                          0x00552     45

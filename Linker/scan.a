@@ -1,0 +1,2218 @@
+;/*****************************************************
+;This program was produced by the
+;CodeWizardAVR V2.04.4a Advanced
+;Automatic Program Generator
+;© Copyright 1998-2009 Pavel Haiduc, HP InfoTech s.r.l.
+;http://www.hpinfotech.com
+;
+;Project :
+;Version :
+;Date    : 18.07.2014
+;Author  : NeVaDa
+;Company : Укртелеком
+;Comments:
+;
+;
+;Chip type               : ATmega8L
+;Program type            : Application
+;AVR Core Clock frequency: 8,000000 MHz
+;Memory model            : Small
+;External RAM size       : 0
+;Data Stack size         : 256
+;*****************************************************/
+;
+;#include <mega8.h>
+;PCODE: $00000000 VOL: 0
+	#ifndef __SLEEP_DEFINED__
+;PCODE: $00000001 VOL: 0
+	#define __SLEEP_DEFINED__
+;PCODE: $00000002 VOL: 0
+	.EQU __se_bit=0x80
+;PCODE: $00000003 VOL: 0
+	.EQU __sm_mask=0x70
+;PCODE: $00000004 VOL: 0
+	.EQU __sm_powerdown=0x20
+;PCODE: $00000005 VOL: 0
+	.EQU __sm_powersave=0x30
+;PCODE: $00000006 VOL: 0
+	.EQU __sm_standby=0x60
+;PCODE: $00000007 VOL: 0
+	.EQU __sm_ext_standby=0x70
+;PCODE: $00000008 VOL: 0
+	.EQU __sm_adc_noise_red=0x10
+;PCODE: $00000009 VOL: 0
+	.SET power_ctrl_reg=mcucr
+;PCODE: $0000000A VOL: 0
+	#endif
+;PCODE: $0000000B VOL: 0
+;PCODE: $0000000C VOL: 0
+;
+;// I2C Bus functions
+;#asm
+;PCODE: $0000000D VOL: 0
+   .equ __i2c_port=0x12 ;PORTD
+;PCODE: $0000000E VOL: 0
+   .equ __sda_bit=2
+;PCODE: $0000000F VOL: 0
+   .equ __scl_bit=3
+;PCODE: $00000010 VOL: 0
+;PCODE: $00000011 VOL: 0
+; 0000 001F #endasm
+;#include <i2c.h>
+;#include <delay.h>
+;#include <stdlib.h>
+;
+;#define kn1 PINC.5
+;#define kn2 PINC.1
+;#define kn3 PINC.3
+;#define zvuk PORTD.7
+;#define PS2_CLK   PIND.4
+;#define PS2_DATA  PIND.5
+;
+;
+;
+;// Declare your global variables here
+;#define EEPROM_BUS_ADDRESS 0xA0
+; unsigned char KeyV[100], read, kluch, k, dat, addr0=0, addr1=0, n, j, i, KeyVal, zna;
+; bit  flag=0, ravno=0, enter=0;
+; unsigned int address, addr, paus, add;
+; char conv[5];
+; flash unsigned char KeyU[] = {'','','','','','','','','','','','','','','~','','','','','','','Q','!','','','','Z','S', ...
+; flash unsigned char KeyD[] = {'','','','','','','','','','','','','','','`','','','','','','','q','1','','','','z','s', ...
+;
+;#define ADC_VREF_TYPE 0xC0
+;
+;// Read the AD conversion result
+;unsigned int read_adc(unsigned char adc_input)
+; 0000 003A {
+
+	.CSEG
+;PCODE: $00000012 VOL: 0
+;PCODE: $00000013 VOL: 0
+; 0000 003B ADMUX=adc_input | (ADC_VREF_TYPE & 0xff);
+;PCODE: $00000014 VOL: 0
+;	adc_input -> Y+0
+;PCODE: $00000015 VOL: 0
+;PCODE: $00000016 VOL: 0
+;PCODE: $00000017 VOL: 0
+; 0000 003C // Delay needed for the stabilization of the ADC input voltage
+; 0000 003D delay_us(10);
+;PCODE: $00000018 VOL: 0
+; 0000 003E // Start the AD conversion
+; 0000 003F ADCSRA|=0x40;
+;PCODE: $00000019 VOL: 0
+;PCODE: $0000001A VOL: 0
+; 0000 0040 // Wait for the AD conversion to complete
+; 0000 0041 while ((ADCSRA & 0x10)==0);
+;PCODE: $0000001B VOL: 0
+;PCODE: $0000001C VOL: 0
+;PCODE: $0000001D VOL: 0
+;PCODE: $0000001E VOL: 0
+;PCODE: $0000001F VOL: 0
+;PCODE: $00000020 VOL: 0
+; 0000 0042 ADCSRA|=0x10;
+;PCODE: $00000021 VOL: 0
+;PCODE: $00000022 VOL: 0
+; 0000 0043 return ADCW;
+;PCODE: $00000023 VOL: 0
+;PCODE: $00000024 VOL: 0
+;PCODE: $00000025 VOL: 0
+; 0000 0044 }
+;PCODE: $00000026 VOL: 0
+;
+;
+;// Alphanumeric LCD Module functions
+;#asm
+;PCODE: $00000027 VOL: 0
+   .equ __lcd_port=0x18 ;PORTB
+;PCODE: $00000028 VOL: 0
+;PCODE: $00000029 VOL: 0
+; 0000 004A #endasm
+;#include <lcd.h>
+;
+;#define RXB8 1
+;#define TXB8 0
+;#define UPE 2
+;#define OVR 3
+;#define FE 4
+;#define UDRE 5
+;#define RXC 7
+;
+;#define FRAMING_ERROR (1<<FE)
+;#define PARITY_ERROR (1<<UPE)
+;#define DATA_OVERRUN (1<<OVR)
+;#define DATA_REGISTER_EMPTY (1<<UDRE)
+;#define RX_COMPLETE (1<<RXC)
+;
+;// USART Receiver buffer
+;#define RX_BUFFER_SIZE 48
+;char rx_buffer[RX_BUFFER_SIZE];
+;
+;#if RX_BUFFER_SIZE<256
+;unsigned char rx_wr_index,rx_rd_index,rx_counter;
+;#else
+;unsigned int rx_wr_index,rx_rd_index,rx_counter;
+;#endif
+;
+;// This flag is set on USART Receiver buffer overflow
+;bit rx_buffer_overflow;
+;
+;// USART Receiver interrupt service routine
+;interrupt [USART_RXC] void usart_rx_isr(void)
+; 0000 006A {
+;PCODE: $0000002A VOL: 0
+;PCODE: $0000002B VOL: 0
+; 0000 006B char status,data;
+; 0000 006C status=UCSRA;
+;PCODE: $0000002C VOL: 0
+;	status -> R17
+;	data -> R16
+;PCODE: $0000002D VOL: 0
+;PCODE: $0000002E VOL: 0
+; 0000 006D data=UDR;
+;PCODE: $0000002F VOL: 0
+;PCODE: $00000030 VOL: 0
+; 0000 006E if ((status & (FRAMING_ERROR | PARITY_ERROR | DATA_OVERRUN))==0)
+;PCODE: $00000031 VOL: 0
+;PCODE: $00000032 VOL: 0
+;PCODE: $00000033 VOL: 0
+; 0000 006F    {
+; 0000 0070    rx_buffer[rx_wr_index]=data;
+;PCODE: $00000034 VOL: 0
+;PCODE: $00000035 VOL: 0
+;PCODE: $00000036 VOL: 0
+;PCODE: $00000037 VOL: 0
+; 0000 0071    if (++rx_wr_index == RX_BUFFER_SIZE) rx_wr_index=0;
+;PCODE: $00000038 VOL: 0
+;PCODE: $00000039 VOL: 0
+;PCODE: $0000003A VOL: 0
+;PCODE: $0000003B VOL: 0
+;PCODE: $0000003C VOL: 0
+;PCODE: $0000003D VOL: 0
+;PCODE: $0000003E VOL: 0
+; 0000 0072    if (++rx_counter == RX_BUFFER_SIZE)
+;PCODE: $0000003F VOL: 0
+;PCODE: $00000040 VOL: 0
+;PCODE: $00000041 VOL: 0
+;PCODE: $00000042 VOL: 0
+;PCODE: $00000043 VOL: 0
+;PCODE: $00000044 VOL: 0
+; 0000 0073       {
+; 0000 0074       rx_counter=0;
+;PCODE: $00000045 VOL: 0
+;PCODE: $00000046 VOL: 0
+; 0000 0075       rx_buffer_overflow=1;
+;PCODE: $00000047 VOL: 0
+;PCODE: $00000048 VOL: 0
+;PCODE: $00000049 VOL: 0
+; 0000 0076       };
+;PCODE: $0000004A VOL: 0
+; 0000 0077    };
+;PCODE: $0000004B VOL: 0
+; 0000 0078 }
+;PCODE: $0000004C VOL: 0
+;PCODE: $0000004D VOL: 0
+;PCODE: $0000004E VOL: 0
+;PCODE: $0000004F VOL: 0
+;
+;
+;
+;
+;
+;#ifndef _DEBUG_TERMINAL_IO_
+;// Get a character from the USART Receiver buffer
+;#define _ALTERNATE_GETCHAR_
+;#pragma used+
+;char getchar(void)
+; 0000 0083 {
+;PCODE: $00000050 VOL: 0
+;PCODE: $00000051 VOL: 0
+; 0000 0084 char data;
+; 0000 0085 while (rx_counter==0) if (!kn2) return 0xFF;
+;PCODE: $00000052 VOL: 0
+;	data -> R17
+;PCODE: $00000053 VOL: 0
+;PCODE: $00000054 VOL: 0
+;PCODE: $00000055 VOL: 0
+;PCODE: $00000056 VOL: 0
+;PCODE: $00000057 VOL: 0
+;PCODE: $00000058 VOL: 0
+;PCODE: $00000059 VOL: 0
+;PCODE: $0000005A VOL: 0
+;PCODE: $0000005B VOL: 0
+;PCODE: $0000005C VOL: 0
+; 0000 0086 data=rx_buffer[rx_rd_index];
+;PCODE: $0000005D VOL: 0
+;PCODE: $0000005E VOL: 0
+;PCODE: $0000005F VOL: 0
+;PCODE: $00000060 VOL: 0
+;PCODE: $00000061 VOL: 0
+;PCODE: $00000062 VOL: 0
+;PCODE: $00000063 VOL: 0
+; 0000 0087 if (++rx_rd_index == RX_BUFFER_SIZE) rx_rd_index=0;
+;PCODE: $00000064 VOL: 0
+;PCODE: $00000065 VOL: 0
+;PCODE: $00000066 VOL: 0
+;PCODE: $00000067 VOL: 0
+;PCODE: $00000068 VOL: 0
+;PCODE: $00000069 VOL: 0
+;PCODE: $0000006A VOL: 0
+; 0000 0088 #asm("cli")
+;PCODE: $0000006B VOL: 0
+;PCODE: $0000006C VOL: 0
+	cli
+;PCODE: $0000006D VOL: 0
+; 0000 0089 --rx_counter;
+;PCODE: $0000006E VOL: 0
+;PCODE: $0000006F VOL: 0
+;PCODE: $00000070 VOL: 0
+; 0000 008A #asm("sei")
+;PCODE: $00000071 VOL: 0
+	sei
+;PCODE: $00000072 VOL: 0
+; 0000 008B return data;
+;PCODE: $00000073 VOL: 0
+;PCODE: $00000074 VOL: 0
+;PCODE: $00000075 VOL: 0
+; 0000 008C }
+;PCODE: $00000076 VOL: 0
+;#pragma used-
+;#endif
+;
+;// USART Transmitter buffer
+;#define TX_BUFFER_SIZE 8
+;char tx_buffer[TX_BUFFER_SIZE];
+;
+;#if TX_BUFFER_SIZE<256
+;unsigned char tx_wr_index,tx_rd_index,tx_counter;
+;#else
+;unsigned int tx_wr_index,tx_rd_index,tx_counter;
+;#endif
+;
+;// USART Transmitter interrupt service routine
+;interrupt [USART_TXC] void usart_tx_isr(void)
+; 0000 009C {
+;PCODE: $00000077 VOL: 0
+;PCODE: $00000078 VOL: 0
+; 0000 009D if (tx_counter)
+;PCODE: $00000079 VOL: 0
+;PCODE: $0000007A VOL: 0
+;PCODE: $0000007B VOL: 0
+; 0000 009E    {
+; 0000 009F    --tx_counter;
+;PCODE: $0000007C VOL: 0
+;PCODE: $0000007D VOL: 0
+;PCODE: $0000007E VOL: 0
+; 0000 00A0    UDR=tx_buffer[tx_rd_index];
+;PCODE: $0000007F VOL: 0
+;PCODE: $00000080 VOL: 0
+;PCODE: $00000081 VOL: 0
+;PCODE: $00000082 VOL: 0
+;PCODE: $00000083 VOL: 0
+; 0000 00A1    if (++tx_rd_index == TX_BUFFER_SIZE) tx_rd_index=0;
+;PCODE: $00000084 VOL: 0
+;PCODE: $00000085 VOL: 0
+;PCODE: $00000086 VOL: 0
+;PCODE: $00000087 VOL: 0
+;PCODE: $00000088 VOL: 0
+;PCODE: $00000089 VOL: 0
+;PCODE: $0000008A VOL: 0
+; 0000 00A2    };
+;PCODE: $0000008B VOL: 0
+;PCODE: $0000008C VOL: 0
+; 0000 00A3 }
+;PCODE: $0000008D VOL: 0
+;PCODE: $0000008E VOL: 0
+;PCODE: $0000008F VOL: 0
+;
+;#ifndef _DEBUG_TERMINAL_IO_
+;// Write a character to the USART Transmitter buffer
+;#define _ALTERNATE_PUTCHAR_
+;#pragma used+
+;void putchar(char c)
+; 0000 00AA {
+;PCODE: $00000090 VOL: 0
+;PCODE: $00000091 VOL: 0
+; 0000 00AB while (tx_counter == TX_BUFFER_SIZE);
+;PCODE: $00000092 VOL: 0
+;	c -> Y+0
+;PCODE: $00000093 VOL: 0
+;PCODE: $00000094 VOL: 0
+;PCODE: $00000095 VOL: 0
+;PCODE: $00000096 VOL: 0
+;PCODE: $00000097 VOL: 0
+;PCODE: $00000098 VOL: 0
+; 0000 00AC #asm("cli")
+;PCODE: $00000099 VOL: 0
+	cli
+;PCODE: $0000009A VOL: 0
+; 0000 00AD if (tx_counter || ((UCSRA & DATA_REGISTER_EMPTY)==0))
+;PCODE: $0000009B VOL: 0
+;PCODE: $0000009C VOL: 0
+;PCODE: $0000009D VOL: 0
+;PCODE: $0000009E VOL: 0
+;PCODE: $0000009F VOL: 0
+;PCODE: $000000A0 VOL: 0
+;PCODE: $000000A1 VOL: 0
+;PCODE: $000000A2 VOL: 0
+; 0000 00AE    {
+; 0000 00AF    tx_buffer[tx_wr_index]=c;
+;PCODE: $000000A3 VOL: 0
+;PCODE: $000000A4 VOL: 0
+;PCODE: $000000A5 VOL: 0
+;PCODE: $000000A6 VOL: 0
+;PCODE: $000000A7 VOL: 0
+; 0000 00B0    if (++tx_wr_index == TX_BUFFER_SIZE) tx_wr_index=0;
+;PCODE: $000000A8 VOL: 0
+;PCODE: $000000A9 VOL: 0
+;PCODE: $000000AA VOL: 0
+;PCODE: $000000AB VOL: 0
+;PCODE: $000000AC VOL: 0
+;PCODE: $000000AD VOL: 0
+;PCODE: $000000AE VOL: 0
+; 0000 00B1    ++tx_counter;
+;PCODE: $000000AF VOL: 0
+;PCODE: $000000B0 VOL: 0
+;PCODE: $000000B1 VOL: 0
+;PCODE: $000000B2 VOL: 0
+; 0000 00B2    }
+; 0000 00B3 else
+;PCODE: $000000B3 VOL: 0
+;PCODE: $000000B4 VOL: 0
+; 0000 00B4    UDR=c;
+;PCODE: $000000B5 VOL: 0
+;PCODE: $000000B6 VOL: 0
+; 0000 00B5 #asm("sei")
+;PCODE: $000000B7 VOL: 0
+;PCODE: $000000B8 VOL: 0
+	sei
+;PCODE: $000000B9 VOL: 0
+; 0000 00B6 }
+;PCODE: $000000BA VOL: 0
+;PCODE: $000000BB VOL: 0
+;PCODE: $000000BC VOL: 0
+;#pragma used-
+;#endif
+;
+;// Standard Input/Output functions
+;#include <stdio.h>
+;
+;/***************************************************************************************
+;+ Читаем ячейку из 24с02.
+;+ В параметрах указывается адрес читаемой ячейки.
+;+ Функция возвращает прочитаное из ячейки.
+;****************************************************************************************/
+;unsigned char eep_read(unsigned char address1, unsigned char address2) {
+; 0000 00C2 unsigned char eep_read(unsigned char address1, unsigned char address2) {
+;PCODE: $000000BD VOL: 0
+;PCODE: $000000BE VOL: 0
+; 0000 00C3 unsigned char data;                    //переменная для прочитаных данных
+; 0000 00C4 #asm("cli")
+;PCODE: $000000BF VOL: 0
+;PCODE: $000000C0 VOL: 0
+;	address1 -> Y+2
+;	address2 -> Y+1
+;	data -> R17
+;PCODE: $000000C1 VOL: 0
+	cli
+;PCODE: $000000C2 VOL: 0
+; 0000 00C5 i2c_start();                           //посылаем команду "старт" в шину i2c
+;PCODE: $000000C3 VOL: 0
+; 0000 00C6 i2c_write(EEPROM_BUS_ADDRESS);         //посылаем в шину адрес устройства
+;PCODE: $000000C4 VOL: 0
+;PCODE: $000000C5 VOL: 0
+; 0000 00C7 i2c_write(address1);
+;PCODE: $000000C6 VOL: 0
+;PCODE: $000000C7 VOL: 0
+; 0000 00C8 i2c_write(address2);                    //посылаем в шину адрес читаемой ячейки
+;PCODE: $000000C8 VOL: 0
+;PCODE: $000000C9 VOL: 0
+; 0000 00C9 i2c_start();                           //снова посылаем "старт" в шину
+;PCODE: $000000CA VOL: 0
+; 0000 00CA i2c_write(EEPROM_BUS_ADDRESS | 1);     //незнаю зачем но без этого не работает
+;PCODE: $000000CB VOL: 0
+;PCODE: $000000CC VOL: 0
+; 0000 00CB data=i2c_read(0);                      //принимаем данные с лини и сохраняем в переменную
+;PCODE: $000000CD VOL: 0
+;PCODE: $000000CE VOL: 0
+;PCODE: $000000CF VOL: 0
+; 0000 00CC i2c_stop();                            //посылаем команду "стоп"
+;PCODE: $000000D0 VOL: 0
+; 0000 00CD #asm("sei")
+;PCODE: $000000D1 VOL: 0
+	sei
+;PCODE: $000000D2 VOL: 0
+; 0000 00CE return data;                           //возврощаем значение прочитаного
+;PCODE: $000000D3 VOL: 0
+;PCODE: $000000D4 VOL: 0
+;PCODE: $000000D5 VOL: 0
+;PCODE: $000000D6 VOL: 0
+;PCODE: $000000D7 VOL: 0
+; 0000 00CF }
+;PCODE: $000000D8 VOL: 0
+;
+;/***************************************************************************************
+;+ Запись данных в ячейку 24с02.
+;+ В параметрах указывается адрес записываемой ячейки (adress).
+;+ Также указуем в параметрах данные которые надо записать в ячейку.
+;****************************************************************************************/
+;void eep_write(unsigned char address1, unsigned char address2, unsigned char data) {
+; 0000 00D6 void eep_write(unsigned char address1, unsigned char address2, unsigned char data) {
+;PCODE: $000000D9 VOL: 0
+;PCODE: $000000DA VOL: 0
+; 0000 00D7 #asm("cli")
+;PCODE: $000000DB VOL: 0
+;	address1 -> Y+2
+;	address2 -> Y+1
+;	data -> Y+0
+;PCODE: $000000DC VOL: 0
+	cli
+;PCODE: $000000DD VOL: 0
+; 0000 00D8 i2c_start();                           //посылаем команду "старт" в шину i2c
+;PCODE: $000000DE VOL: 0
+; 0000 00D9 i2c_write(EEPROM_BUS_ADDRESS);         //посылаем в шину адрес устройства
+;PCODE: $000000DF VOL: 0
+;PCODE: $000000E0 VOL: 0
+; 0000 00DA i2c_write(address1);
+;PCODE: $000000E1 VOL: 0
+;PCODE: $000000E2 VOL: 0
+; 0000 00DB i2c_write(address2);                    //посылаем в шину адрес записываемой ячейки
+;PCODE: $000000E3 VOL: 0
+;PCODE: $000000E4 VOL: 0
+; 0000 00DC i2c_write(data);                       //посылаем данные для записи
+;PCODE: $000000E5 VOL: 0
+;PCODE: $000000E6 VOL: 0
+; 0000 00DD i2c_stop();
+;PCODE: $000000E7 VOL: 0
+; 0000 00DE #asm("sei")
+;PCODE: $000000E8 VOL: 0
+	sei
+;PCODE: $000000E9 VOL: 0
+; 0000 00DF delay_ms(5);                           //посылаем команду "стоп"
+;PCODE: $000000EA VOL: 0
+;PCODE: $000000EB VOL: 0
+;PCODE: $000000EC VOL: 0
+; 0000 00E0 }
+;PCODE: $000000ED VOL: 0
+;PCODE: $000000EE VOL: 0
+;PCODE: $000000EF VOL: 0
+;
+;void err(void)
+; 0000 00E3 {
+;PCODE: $000000F0 VOL: 0
+;PCODE: $000000F1 VOL: 0
+; 0000 00E4 kluch = 0;
+;PCODE: $000000F2 VOL: 0
+; 0000 00E5 k = 0;
+;PCODE: $000000F3 VOL: 0
+; 0000 00E6   zvuk = 0;
+;PCODE: $000000F4 VOL: 0
+;PCODE: $000000F5 VOL: 0
+; 0000 00E7   delay_ms(50);
+;PCODE: $000000F6 VOL: 0
+;PCODE: $000000F7 VOL: 0
+;PCODE: $000000F8 VOL: 0
+; 0000 00E8   zvuk = 1;
+;PCODE: $000000F9 VOL: 0
+;PCODE: $000000FA VOL: 0
+; 0000 00E9   delay_ms(50);
+;PCODE: $000000FB VOL: 0
+;PCODE: $000000FC VOL: 0
+;PCODE: $000000FD VOL: 0
+; 0000 00EA   zvuk = 0;
+;PCODE: $000000FE VOL: 0
+;PCODE: $000000FF VOL: 0
+; 0000 00EB   delay_ms(50);
+;PCODE: $00000100 VOL: 0
+;PCODE: $00000101 VOL: 0
+;PCODE: $00000102 VOL: 0
+; 0000 00EC   zvuk = 1;
+;PCODE: $00000103 VOL: 0
+;PCODE: $00000104 VOL: 0
+; 0000 00ED   delay_ms(50);
+;PCODE: $00000105 VOL: 0
+;PCODE: $00000106 VOL: 0
+;PCODE: $00000107 VOL: 0
+; 0000 00EE   zvuk = 0;
+;PCODE: $00000108 VOL: 0
+;PCODE: $00000109 VOL: 0
+; 0000 00EF   delay_ms(50);
+;PCODE: $0000010A VOL: 0
+;PCODE: $0000010B VOL: 0
+;PCODE: $0000010C VOL: 0
+; 0000 00F0   zvuk = 1;
+;PCODE: $0000010D VOL: 0
+;PCODE: $0000010E VOL: 0
+; 0000 00F1   delay_ms(100);
+;PCODE: $0000010F VOL: 0
+;PCODE: $00000110 VOL: 0
+;PCODE: $00000111 VOL: 0
+; 0000 00F2   zvuk = 0;
+;PCODE: $00000112 VOL: 0
+;PCODE: $00000113 VOL: 0
+; 0000 00F3   delay_ms(150);
+;PCODE: $00000114 VOL: 0
+;PCODE: $00000115 VOL: 0
+;PCODE: $00000116 VOL: 0
+; 0000 00F4   zvuk = 1;
+;PCODE: $00000117 VOL: 0
+;PCODE: $00000118 VOL: 0
+; 0000 00F5   delay_ms(50);
+;PCODE: $00000119 VOL: 0
+;PCODE: $0000011A VOL: 0
+;PCODE: $0000011B VOL: 0
+; 0000 00F6   zvuk = 0;
+;PCODE: $0000011C VOL: 0
+;PCODE: $0000011D VOL: 0
+; 0000 00F7   delay_ms(150);
+;PCODE: $0000011E VOL: 0
+;PCODE: $0000011F VOL: 0
+;PCODE: $00000120 VOL: 0
+; 0000 00F8   zvuk = 1;
+;PCODE: $00000121 VOL: 0
+;PCODE: $00000122 VOL: 0
+; 0000 00F9   delay_ms(50);
+;PCODE: $00000123 VOL: 0
+;PCODE: $00000124 VOL: 0
+;PCODE: $00000125 VOL: 0
+; 0000 00FA   zvuk = 0;
+;PCODE: $00000126 VOL: 0
+;PCODE: $00000127 VOL: 0
+; 0000 00FB   delay_ms(150);
+;PCODE: $00000128 VOL: 0
+;PCODE: $00000129 VOL: 0
+;PCODE: $0000012A VOL: 0
+; 0000 00FC   zvuk = 1;
+;PCODE: $0000012B VOL: 0
+;PCODE: $0000012C VOL: 0
+; 0000 00FD   delay_ms(200);
+;PCODE: $0000012D VOL: 0
+;PCODE: $0000012E VOL: 0
+;PCODE: $0000012F VOL: 0
+; 0000 00FE   zvuk = 0;
+;PCODE: $00000130 VOL: 0
+;PCODE: $00000131 VOL: 0
+; 0000 00FF   delay_ms(50);
+;PCODE: $00000132 VOL: 0
+;PCODE: $00000133 VOL: 0
+;PCODE: $00000134 VOL: 0
+; 0000 0100   zvuk = 1;
+;PCODE: $00000135 VOL: 0
+;PCODE: $00000136 VOL: 0
+; 0000 0101   delay_ms(50);
+;PCODE: $00000137 VOL: 0
+;PCODE: $00000138 VOL: 0
+;PCODE: $00000139 VOL: 0
+; 0000 0102   zvuk = 0;
+;PCODE: $0000013A VOL: 0
+;PCODE: $0000013B VOL: 0
+; 0000 0103   delay_ms(50);
+;PCODE: $0000013C VOL: 0
+;PCODE: $0000013D VOL: 0
+;PCODE: $0000013E VOL: 0
+; 0000 0104   zvuk = 1;
+;PCODE: $0000013F VOL: 0
+;PCODE: $00000140 VOL: 0
+; 0000 0105   delay_ms(50);
+;PCODE: $00000141 VOL: 0
+;PCODE: $00000142 VOL: 0
+;PCODE: $00000143 VOL: 0
+; 0000 0106   zvuk = 0;
+;PCODE: $00000144 VOL: 0
+;PCODE: $00000145 VOL: 0
+; 0000 0107   delay_ms(50);
+;PCODE: $00000146 VOL: 0
+;PCODE: $00000147 VOL: 0
+;PCODE: $00000148 VOL: 0
+; 0000 0108   zvuk = 1;
+;PCODE: $00000149 VOL: 0
+;PCODE: $0000014A VOL: 0
+; 0000 0109   delay_ms(50);
+;PCODE: $0000014B VOL: 0
+;PCODE: $0000014C VOL: 0
+;PCODE: $0000014D VOL: 0
+; 0000 010A lcd_clear();
+;PCODE: $0000014E VOL: 0
+; 0000 010B lcd_putsf("      ERROR     ");
+;PCODE: $0000014F VOL: 0
+;PCODE: $00000150 VOL: 0
+;PCODE: $00000151 VOL: 0
+; 0000 010C lcd_gotoxy(0,1);
+;PCODE: $00000152 VOL: 0
+;PCODE: $00000153 VOL: 0
+;PCODE: $00000154 VOL: 0
+;PCODE: $00000155 VOL: 0
+; 0000 010D lcd_putsf("                ");
+;PCODE: $00000156 VOL: 0
+;PCODE: $00000157 VOL: 0
+;PCODE: $00000158 VOL: 0
+; 0000 010E kluch = 0;
+;PCODE: $00000159 VOL: 0
+; 0000 010F k = 0;
+;PCODE: $0000015A VOL: 0
+; 0000 0110 read = 0xFF;
+;PCODE: $0000015B VOL: 0
+;PCODE: $0000015C VOL: 0
+; 0000 0111 while(rx_counter != 0) getchar() ;
+;PCODE: $0000015D VOL: 0
+;PCODE: $0000015E VOL: 0
+;PCODE: $0000015F VOL: 0
+;PCODE: $00000160 VOL: 0
+;PCODE: $00000161 VOL: 0
+;PCODE: $00000162 VOL: 0
+;PCODE: $00000163 VOL: 0
+; 0000 0113 }
+;PCODE: $00000164 VOL: 0
+;PCODE: $00000165 VOL: 0
+;
+;unsigned char Scan_Data()     // Чтение из сканера
+; 0000 0116 {
+;PCODE: $00000166 VOL: 0
+;PCODE: $00000167 VOL: 0
+; 0000 0117     unsigned char Data=0,temp;
+; 0000 0118     while(PS2_CLK==0);
+;PCODE: $00000168 VOL: 0
+;	Data -> R17
+;	temp -> R16
+;PCODE: $00000169 VOL: 0
+;PCODE: $0000016A VOL: 0
+;PCODE: $0000016B VOL: 0
+;PCODE: $0000016C VOL: 0
+;PCODE: $0000016D VOL: 0
+;PCODE: $0000016E VOL: 0
+;PCODE: $0000016F VOL: 0
+;PCODE: $00000170 VOL: 0
+; 0000 0119     for(i=0;i<10;i++)
+;PCODE: $00000171 VOL: 0
+;PCODE: $00000172 VOL: 0
+;PCODE: $00000173 VOL: 0
+;PCODE: $00000174 VOL: 0
+;PCODE: $00000175 VOL: 0
+;PCODE: $00000176 VOL: 0
+;PCODE: $00000177 VOL: 0
+; 0000 011A     {
+; 0000 011B         paus = 0;
+;PCODE: $00000178 VOL: 0
+;PCODE: $00000179 VOL: 0
+; 0000 011C         while(PS2_CLK==1) { if(paus++ > 65000) return(0);} ;
+;PCODE: $0000017A VOL: 0
+;PCODE: $0000017B VOL: 0
+;PCODE: $0000017C VOL: 0
+;PCODE: $0000017D VOL: 0
+;PCODE: $0000017E VOL: 0
+;PCODE: $0000017F VOL: 0
+;PCODE: $00000180 VOL: 0
+;PCODE: $00000181 VOL: 0
+;PCODE: $00000182 VOL: 0
+;PCODE: $00000183 VOL: 0
+;PCODE: $00000184 VOL: 0
+;PCODE: $00000185 VOL: 0
+;PCODE: $00000186 VOL: 0
+;PCODE: $00000187 VOL: 0
+;PCODE: $00000188 VOL: 0
+;PCODE: $00000189 VOL: 0
+;PCODE: $0000018A VOL: 0
+; 0000 011D         temp=PS2_DATA;
+;PCODE: $0000018B VOL: 0
+;PCODE: $0000018C VOL: 0
+;PCODE: $0000018D VOL: 0
+; 0000 011E         temp<<=i;
+;PCODE: $0000018E VOL: 0
+;PCODE: $0000018F VOL: 0
+;PCODE: $00000190 VOL: 0
+;PCODE: $00000191 VOL: 0
+; 0000 011F         Data|=temp;
+;PCODE: $00000192 VOL: 0
+;PCODE: $00000193 VOL: 0
+; 0000 0120         while(PS2_CLK==0);
+;PCODE: $00000194 VOL: 0
+;PCODE: $00000195 VOL: 0
+;PCODE: $00000196 VOL: 0
+;PCODE: $00000197 VOL: 0
+;PCODE: $00000198 VOL: 0
+;PCODE: $00000199 VOL: 0
+; 0000 0121     }
+;PCODE: $0000019A VOL: 0
+;PCODE: $0000019B VOL: 0
+;PCODE: $0000019C VOL: 0
+;PCODE: $0000019D VOL: 0
+; 0000 0122 //    PORTD=0x00;
+; 0000 0123 //    delay_ms(1);
+; 0000 0124     return(Data);
+;PCODE: $0000019E VOL: 0
+;PCODE: $0000019F VOL: 0
+;PCODE: $000001A0 VOL: 0
+; 0000 0125 }
+;PCODE: $000001A1 VOL: 0
+;
+;
+;
+;void main(void)
+; 0000 012A {
+;PCODE: $000001A2 VOL: 0
+; 0000 012B // Declare your local variables here
+; 0000 012C 
+; 0000 012D // Input/Output Ports initialization
+; 0000 012E // Port B initialization
+; 0000 012F // Func7=In Func6=In Func5=In Func4=In Func3=In Func2=In Func1=In Func0=In
+; 0000 0130 // State7=T State6=T State5=T State4=T State3=T State2=T State1=T State0=T
+; 0000 0131 PORTB=0x00;
+;PCODE: $000001A3 VOL: 0
+;PCODE: $000001A4 VOL: 0
+; 0000 0132 DDRB=0x00;
+;PCODE: $000001A5 VOL: 0
+;PCODE: $000001A6 VOL: 0
+; 0000 0133 
+; 0000 0134 // Port C initialization
+; 0000 0135 // Func6=In Func5=In Func4=In Func3=In Func2=In Func1=In Func0=In
+; 0000 0136 // State6=P State5=P State4=P State3=P State2=T State1=P State0=T
+; 0000 0137 PORTC=0x7A;
+;PCODE: $000001A7 VOL: 0
+;PCODE: $000001A8 VOL: 0
+; 0000 0138 DDRC=0x00;
+;PCODE: $000001A9 VOL: 0
+;PCODE: $000001AA VOL: 0
+; 0000 0139 
+; 0000 013A // Port D initialization
+; 0000 013B // Func7=Out Func6=In Func5=In Func4=In Func3=In Func2=In Func1=In Func0=In
+; 0000 013C // State7=1 State6=P State5=P State4=P State3=P State2=P State1=T State0=T
+; 0000 013D PORTD=0xFC;
+;PCODE: $000001AB VOL: 0
+;PCODE: $000001AC VOL: 0
+; 0000 013E DDRD=0x80;
+;PCODE: $000001AD VOL: 0
+;PCODE: $000001AE VOL: 0
+; 0000 013F 
+; 0000 0140 // Timer/Counter 0 initialization
+; 0000 0141 // Clock source: System Clock
+; 0000 0142 // Clock value: Timer 0 Stopped
+; 0000 0143 TCCR0=0x00;
+;PCODE: $000001AF VOL: 0
+;PCODE: $000001B0 VOL: 0
+; 0000 0144 TCNT0=0x00;
+;PCODE: $000001B1 VOL: 0
+;PCODE: $000001B2 VOL: 0
+; 0000 0145 
+; 0000 0146 // Timer/Counter 1 initialization
+; 0000 0147 // Clock source: System Clock
+; 0000 0148 // Clock value: Timer 1 Stopped
+; 0000 0149 // Mode: Normal top=FFFFh
+; 0000 014A // OC1A output: Discon.
+; 0000 014B // OC1B output: Discon.
+; 0000 014C // Noise Canceler: Off
+; 0000 014D // Input Capture on Falling Edge
+; 0000 014E // Timer 1 Overflow Interrupt: Off
+; 0000 014F // Input Capture Interrupt: Off
+; 0000 0150 // Compare A Match Interrupt: Off
+; 0000 0151 // Compare B Match Interrupt: Off
+; 0000 0152 TCCR1A=0x00;
+;PCODE: $000001B3 VOL: 0
+;PCODE: $000001B4 VOL: 0
+; 0000 0153 TCCR1B=0x00;
+;PCODE: $000001B5 VOL: 0
+;PCODE: $000001B6 VOL: 0
+; 0000 0154 TCNT1H=0x00;
+;PCODE: $000001B7 VOL: 0
+;PCODE: $000001B8 VOL: 0
+; 0000 0155 TCNT1L=0x00;
+;PCODE: $000001B9 VOL: 0
+;PCODE: $000001BA VOL: 0
+; 0000 0156 ICR1H=0x00;
+;PCODE: $000001BB VOL: 0
+;PCODE: $000001BC VOL: 0
+; 0000 0157 ICR1L=0x00;
+;PCODE: $000001BD VOL: 0
+;PCODE: $000001BE VOL: 0
+; 0000 0158 OCR1AH=0x00;
+;PCODE: $000001BF VOL: 0
+;PCODE: $000001C0 VOL: 0
+; 0000 0159 OCR1AL=0x00;
+;PCODE: $000001C1 VOL: 0
+;PCODE: $000001C2 VOL: 0
+; 0000 015A OCR1BH=0x00;
+;PCODE: $000001C3 VOL: 0
+;PCODE: $000001C4 VOL: 0
+; 0000 015B OCR1BL=0x00;
+;PCODE: $000001C5 VOL: 0
+;PCODE: $000001C6 VOL: 0
+; 0000 015C 
+; 0000 015D // Timer/Counter 2 initialization
+; 0000 015E // Clock source: System Clock
+; 0000 015F // Clock value: Timer 2 Stopped
+; 0000 0160 // Mode: Normal top=FFh
+; 0000 0161 // OC2 output: Disconnected
+; 0000 0162 ASSR=0x00;
+;PCODE: $000001C7 VOL: 0
+;PCODE: $000001C8 VOL: 0
+; 0000 0163 TCCR2=0x00;
+;PCODE: $000001C9 VOL: 0
+;PCODE: $000001CA VOL: 0
+; 0000 0164 TCNT2=0x00;
+;PCODE: $000001CB VOL: 0
+;PCODE: $000001CC VOL: 0
+; 0000 0165 OCR2=0x00;
+;PCODE: $000001CD VOL: 0
+;PCODE: $000001CE VOL: 0
+; 0000 0166 
+; 0000 0167 // External Interrupt(s) initialization
+; 0000 0168 // INT0: Off
+; 0000 0169 // INT1: Off
+; 0000 016A MCUCR=0x00;
+;PCODE: $000001CF VOL: 0
+;PCODE: $000001D0 VOL: 0
+; 0000 016B 
+; 0000 016C // Timer(s)/Counter(s) Interrupt(s) initialization
+; 0000 016D TIMSK=0x00;
+;PCODE: $000001D1 VOL: 0
+;PCODE: $000001D2 VOL: 0
+; 0000 016E 
+; 0000 016F // USART initialization
+; 0000 0170 // Communication Parameters: 8 Data, 1 Stop, No Parity
+; 0000 0171 // USART Receiver: On
+; 0000 0172 // USART Transmitter: On
+; 0000 0173 // USART Mode: Asynchronous
+; 0000 0174 // USART Baud Rate: 9600
+; 0000 0175 UCSRA=0x00;
+;PCODE: $000001D3 VOL: 0
+;PCODE: $000001D4 VOL: 0
+; 0000 0176 UCSRB=0xD8;
+;PCODE: $000001D5 VOL: 0
+;PCODE: $000001D6 VOL: 0
+; 0000 0177 UCSRC=0x86;
+;PCODE: $000001D7 VOL: 0
+;PCODE: $000001D8 VOL: 0
+; 0000 0178 UBRRH=0x00;
+;PCODE: $000001D9 VOL: 0
+;PCODE: $000001DA VOL: 0
+; 0000 0179 UBRRL=0x33;
+;PCODE: $000001DB VOL: 0
+;PCODE: $000001DC VOL: 0
+; 0000 017A 
+; 0000 017B // Analog Comparator initialization
+; 0000 017C // Analog Comparator: Off
+; 0000 017D // Analog Comparator Input Capture by Timer/Counter 1: Off
+; 0000 017E ACSR=0x80;
+;PCODE: $000001DD VOL: 0
+;PCODE: $000001DE VOL: 0
+; 0000 017F SFIOR=0x00;
+;PCODE: $000001DF VOL: 0
+;PCODE: $000001E0 VOL: 0
+; 0000 0180 
+; 0000 0181 // I2C Bus initialization
+; 0000 0182 i2c_init();
+;PCODE: $000001E1 VOL: 0
+; 0000 0183 
+; 0000 0184 // LCD module initialization
+; 0000 0185 lcd_init(16);
+;PCODE: $000001E2 VOL: 0
+;PCODE: $000001E3 VOL: 0
+; 0000 0186 
+; 0000 0187 // Global enable interrupts
+; 0000 0188 #asm("sei")
+;PCODE: $000001E4 VOL: 0
+	sei
+;PCODE: $000001E5 VOL: 0
+; 0000 0189 dat = 0x94;
+;PCODE: $000001E6 VOL: 0
+;PCODE: $000001E7 VOL: 0
+; 0000 018A address = eep_read(0,0)*256;       // восстановление последнего записаного адреса
+;PCODE: $000001E8 VOL: 0
+;PCODE: $000001E9 VOL: 0
+;PCODE: $000001EA VOL: 0
+;PCODE: $000001EB VOL: 0
+;PCODE: $000001EC VOL: 0
+;PCODE: $000001ED VOL: 0
+; 0000 018B address = address + eep_read(0,1);
+;PCODE: $000001EE VOL: 0
+;PCODE: $000001EF VOL: 0
+;PCODE: $000001F0 VOL: 0
+;PCODE: $000001F1 VOL: 0
+;PCODE: $000001F2 VOL: 0
+;PCODE: $000001F3 VOL: 0
+;PCODE: $000001F4 VOL: 0
+;PCODE: $000001F5 VOL: 0
+; 0000 018C zna = eep_read(0,2);
+;PCODE: $000001F6 VOL: 0
+;PCODE: $000001F7 VOL: 0
+;PCODE: $000001F8 VOL: 0
+;PCODE: $000001F9 VOL: 0
+;PCODE: $000001FA VOL: 0
+; 0000 018D //address = address + 1;
+; 0000 018E //k = 4;
+; 0000 018F 
+; 0000 0190 lcd_clear();
+;PCODE: $000001FB VOL: 0
+; 0000 0191 
+; 0000 0192 
+; 0000 0193 // ADC initialization
+; 0000 0194 // ADC Clock frequency: 62,500 kHz
+; 0000 0195 // ADC Voltage Reference: Int., cap. on AREF
+; 0000 0196 ADMUX=ADC_VREF_TYPE & 0xff;
+;PCODE: $000001FC VOL: 0
+;PCODE: $000001FD VOL: 0
+; 0000 0197 ADCSRA=0x87;
+;PCODE: $000001FE VOL: 0
+;PCODE: $000001FF VOL: 0
+; 0000 0198 zvuk=0;
+;PCODE: $00000200 VOL: 0
+;PCODE: $00000201 VOL: 0
+; 0000 0199 delay_ms(500);
+;PCODE: $00000202 VOL: 0
+;PCODE: $00000203 VOL: 0
+; 0000 019A addr = read_adc(4)/10;
+;PCODE: $00000204 VOL: 0
+;PCODE: $00000205 VOL: 0
+;PCODE: $00000206 VOL: 0
+;PCODE: $00000207 VOL: 0
+;PCODE: $00000208 VOL: 0
+;PCODE: $00000209 VOL: 0
+; 0000 019B addr = addr * 71;
+;PCODE: $0000020A VOL: 0
+;PCODE: $0000020B VOL: 0
+;PCODE: $0000020C VOL: 0
+;PCODE: $0000020D VOL: 0
+; 0000 019C zvuk=1;
+;PCODE: $0000020E VOL: 0
+;PCODE: $0000020F VOL: 0
+; 0000 019D itoa(addr,conv)  ;
+;PCODE: $00000210 VOL: 0
+;PCODE: $00000211 VOL: 0
+;PCODE: $00000212 VOL: 0
+;PCODE: $00000213 VOL: 0
+; 0000 019E       lcd_gotoxy(0,0);
+;PCODE: $00000214 VOL: 0
+;PCODE: $00000215 VOL: 0
+;PCODE: $00000216 VOL: 0
+;PCODE: $00000217 VOL: 0
+; 0000 019F       lcd_putsf("U pit. =  ");
+;PCODE: $00000218 VOL: 0
+;PCODE: $00000219 VOL: 0
+;PCODE: $0000021A VOL: 0
+; 0000 01A0       lcd_putchar(conv[0]);
+;PCODE: $0000021B VOL: 0
+;PCODE: $0000021C VOL: 0
+; 0000 01A1       lcd_putsf(".");
+;PCODE: $0000021D VOL: 0
+;PCODE: $0000021E VOL: 0
+;PCODE: $0000021F VOL: 0
+; 0000 01A2       lcd_putchar(conv[1]);
+;PCODE: $00000220 VOL: 0
+;PCODE: $00000221 VOL: 0
+;PCODE: $00000222 VOL: 0
+; 0000 01A3       lcd_putsf("v") ;
+;PCODE: $00000223 VOL: 0
+;PCODE: $00000224 VOL: 0
+;PCODE: $00000225 VOL: 0
+; 0000 01A4 ADMUX = 0 ;
+;PCODE: $00000226 VOL: 0
+;PCODE: $00000227 VOL: 0
+; 0000 01A5 ADCSRA = 0 ;
+;PCODE: $00000228 VOL: 0
+;PCODE: $00000229 VOL: 0
+; 0000 01A6 delay_ms(1000);
+;PCODE: $0000022A VOL: 0
+;PCODE: $0000022B VOL: 0
+; 0000 01A7     if (addr < 4800)
+;PCODE: $0000022C VOL: 0
+;PCODE: $0000022D VOL: 0
+;PCODE: $0000022E VOL: 0
+; 0000 01A8     {
+; 0000 01A9     lcd_gotoxy(0,1);
+;PCODE: $0000022F VOL: 0
+;PCODE: $00000230 VOL: 0
+;PCODE: $00000231 VOL: 0
+;PCODE: $00000232 VOL: 0
+; 0000 01AA     lcd_putsf(" LOW BATTERY!!! ");
+;PCODE: $00000233 VOL: 0
+;PCODE: $00000234 VOL: 0
+;PCODE: $00000235 VOL: 0
+; 0000 01AB     err() ;
+;PCODE: $00000236 VOL: 0
+; 0000 01AC     lcd_gotoxy(0,1);
+;PCODE: $00000237 VOL: 0
+;PCODE: $00000238 VOL: 0
+;PCODE: $00000239 VOL: 0
+;PCODE: $0000023A VOL: 0
+; 0000 01AD     lcd_putsf(" LOW BATTERY!!! ");
+;PCODE: $0000023B VOL: 0
+;PCODE: $0000023C VOL: 0
+;PCODE: $0000023D VOL: 0
+; 0000 01AE     delay_ms(1000);
+;PCODE: $0000023E VOL: 0
+;PCODE: $0000023F VOL: 0
+; 0000 01AF     };
+;PCODE: $00000240 VOL: 0
+; 0000 01B0 
+; 0000 01B1 k=0;
+;PCODE: $00000241 VOL: 0
+; 0000 01B2 lcd_clear();
+;PCODE: $00000242 VOL: 0
+; 0000 01B3         addr = address;
+;PCODE: $00000243 VOL: 0
+;PCODE: $00000244 VOL: 0
+; 0000 01B4         lcd_gotoxy(0,0);
+;PCODE: $00000245 VOL: 0
+;PCODE: $00000246 VOL: 0
+;PCODE: $00000247 VOL: 0
+;PCODE: $00000248 VOL: 0
+; 0000 01B5         lcd_putsf("Bcero = ");
+;PCODE: $00000249 VOL: 0
+;PCODE: $0000024A VOL: 0
+;PCODE: $0000024B VOL: 0
+; 0000 01B6         add = zna+1;
+;PCODE: $0000024C VOL: 0
+;PCODE: $0000024D VOL: 0
+;PCODE: $0000024E VOL: 0
+;PCODE: $0000024F VOL: 0
+; 0000 01B7         itoa(addr/add, conv);
+;PCODE: $00000250 VOL: 0
+;PCODE: $00000251 VOL: 0
+;PCODE: $00000252 VOL: 0
+;PCODE: $00000253 VOL: 0
+;PCODE: $00000254 VOL: 0
+;PCODE: $00000255 VOL: 0
+; 0000 01B8         lcd_puts(conv);
+;PCODE: $00000256 VOL: 0
+;PCODE: $00000257 VOL: 0
+; 0000 01B9 while (1)
+;PCODE: $00000258 VOL: 0
+; 0000 01BA   {
+; 0000 01BB //----------------------------------------------------------------------------------
+; 0000 01BC     if (k==0)       // обработка клавиш
+;PCODE: $00000259 VOL: 0
+;PCODE: $0000025A VOL: 0
+; 0000 01BD     {
+; 0000 01BE         if (PS2_CLK==0)
+;PCODE: $0000025B VOL: 0
+;PCODE: $0000025C VOL: 0
+;PCODE: $0000025D VOL: 0
+; 0000 01BF          {
+; 0000 01C0             j++;
+;PCODE: $0000025E VOL: 0
+; 0000 01C1             KeyV[j]=Scan_Data(); // Читать байт
+;PCODE: $0000025F VOL: 0
+;PCODE: $00000260 VOL: 0
+;PCODE: $00000261 VOL: 0
+;PCODE: $00000262 VOL: 0
+;PCODE: $00000263 VOL: 0
+;PCODE: $00000264 VOL: 0
+;PCODE: $00000265 VOL: 0
+; 0000 01C2             if (KeyV[j] == 90) k=1; // Если Enter выполнить следующий блок
+;PCODE: $00000266 VOL: 0
+;PCODE: $00000267 VOL: 0
+;PCODE: $00000268 VOL: 0
+;PCODE: $00000269 VOL: 0
+;PCODE: $0000026A VOL: 0
+;PCODE: $0000026B VOL: 0
+;PCODE: $0000026C VOL: 0
+;PCODE: $0000026D VOL: 0
+; 0000 01C3             if (KeyV[j] == 0) j=0; // Если 0 пропуск и заново
+;PCODE: $0000026E VOL: 0
+;PCODE: $0000026F VOL: 0
+;PCODE: $00000270 VOL: 0
+;PCODE: $00000271 VOL: 0
+;PCODE: $00000272 VOL: 0
+;PCODE: $00000273 VOL: 0
+;PCODE: $00000274 VOL: 0
+;PCODE: $00000275 VOL: 0
+; 0000 01C4             paus = 0;
+;PCODE: $00000276 VOL: 0
+;PCODE: $00000277 VOL: 0
+;PCODE: $00000278 VOL: 0
+; 0000 01C5          }
+; 0000 01C6         if (rx_counter > 0) if(getchar() == 0x20) k=2; // если w с комп, то - передача на комп
+;PCODE: $00000279 VOL: 0
+;PCODE: $0000027A VOL: 0
+;PCODE: $0000027B VOL: 0
+;PCODE: $0000027C VOL: 0
+;PCODE: $0000027D VOL: 0
+;PCODE: $0000027E VOL: 0
+;PCODE: $0000027F VOL: 0
+;PCODE: $00000280 VOL: 0
+;PCODE: $00000281 VOL: 0
+; 0000 01C7         if (!kn1) k = 4;
+;PCODE: $00000282 VOL: 0
+;PCODE: $00000283 VOL: 0
+;PCODE: $00000284 VOL: 0
+;PCODE: $00000285 VOL: 0
+;PCODE: $00000286 VOL: 0
+;PCODE: $00000287 VOL: 0
+;PCODE: $00000288 VOL: 0
+; 0000 01C8         if (!kn2) k = 5;
+;PCODE: $00000289 VOL: 0
+;PCODE: $0000028A VOL: 0
+;PCODE: $0000028B VOL: 0
+;PCODE: $0000028C VOL: 0
+;PCODE: $0000028D VOL: 0
+;PCODE: $0000028E VOL: 0
+; 0000 01C9         if (!kn3) k = 3;
+;PCODE: $0000028F VOL: 0
+;PCODE: $00000290 VOL: 0
+;PCODE: $00000291 VOL: 0
+;PCODE: $00000292 VOL: 0
+;PCODE: $00000293 VOL: 0
+;PCODE: $00000294 VOL: 0
+; 0000 01CA         if (j > 0) if (paus++ > 11111)
+;PCODE: $00000295 VOL: 0
+;PCODE: $00000296 VOL: 0
+;PCODE: $00000297 VOL: 0
+;PCODE: $00000298 VOL: 0
+;PCODE: $00000299 VOL: 0
+;PCODE: $0000029A VOL: 0
+;PCODE: $0000029B VOL: 0
+;PCODE: $0000029C VOL: 0
+;PCODE: $0000029D VOL: 0
+;PCODE: $0000029E VOL: 0
+;PCODE: $0000029F VOL: 0
+; 0000 01CB         {
+; 0000 01CC             KeyV[++j] = 90;
+;PCODE: $000002A0 VOL: 0
+;PCODE: $000002A1 VOL: 0
+;PCODE: $000002A2 VOL: 0
+;PCODE: $000002A3 VOL: 0
+;PCODE: $000002A4 VOL: 0
+;PCODE: $000002A5 VOL: 0
+; 0000 01CD             k = 1;
+;PCODE: $000002A6 VOL: 0
+;PCODE: $000002A7 VOL: 0
+; 0000 01CE         }
+; 0000 01CF     };
+;PCODE: $000002A8 VOL: 0
+;PCODE: $000002A9 VOL: 0
+;PCODE: $000002AA VOL: 0
+; 0000 01D0 
+; 0000 01D1     if (k==1)   // Введен готовый номер
+;PCODE: $000002AB VOL: 0
+;PCODE: $000002AC VOL: 0
+;PCODE: $000002AD VOL: 0
+; 0000 01D2     {
+; 0000 01D3 
+; 0000 01D4         n=j;
+;PCODE: $000002AE VOL: 0
+;PCODE: $000002AF VOL: 0
+; 0000 01D5         i = 1;
+;PCODE: $000002B0 VOL: 0
+;PCODE: $000002B1 VOL: 0
+; 0000 01D6         j = 0;
+;PCODE: $000002B2 VOL: 0
+; 0000 01D7         flag = 0;
+;PCODE: $000002B3 VOL: 0
+;PCODE: $000002B4 VOL: 0
+;PCODE: $000002B5 VOL: 0
+; 0000 01D8         while(i <= n)
+;PCODE: $000002B6 VOL: 0
+;PCODE: $000002B7 VOL: 0
+;PCODE: $000002B8 VOL: 0
+;PCODE: $000002B9 VOL: 0
+; 0000 01D9         {
+; 0000 01DA             if (KeyV[i] == 0x12)
+;PCODE: $000002BA VOL: 0
+;PCODE: $000002BB VOL: 0
+;PCODE: $000002BC VOL: 0
+;PCODE: $000002BD VOL: 0
+;PCODE: $000002BE VOL: 0
+;PCODE: $000002BF VOL: 0
+; 0000 01DB             {
+; 0000 01DC                 flag = 1;
+;PCODE: $000002C0 VOL: 0
+;PCODE: $000002C1 VOL: 0
+;PCODE: $000002C2 VOL: 0
+; 0000 01DD                 i++;
+;PCODE: $000002C3 VOL: 0
+; 0000 01DE             };
+;PCODE: $000002C4 VOL: 0
+; 0000 01DF             if (KeyV[i] == 0xF0)
+;PCODE: $000002C5 VOL: 0
+;PCODE: $000002C6 VOL: 0
+;PCODE: $000002C7 VOL: 0
+;PCODE: $000002C8 VOL: 0
+;PCODE: $000002C9 VOL: 0
+;PCODE: $000002CA VOL: 0
+; 0000 01E0             {
+; 0000 01E1                if (KeyV[++i] == 0x12) flag = 0;
+;PCODE: $000002CB VOL: 0
+;PCODE: $000002CC VOL: 0
+;PCODE: $000002CD VOL: 0
+;PCODE: $000002CE VOL: 0
+;PCODE: $000002CF VOL: 0
+;PCODE: $000002D0 VOL: 0
+;PCODE: $000002D1 VOL: 0
+;PCODE: $000002D2 VOL: 0
+;PCODE: $000002D3 VOL: 0
+;PCODE: $000002D4 VOL: 0
+; 0000 01E2                i++;
+;PCODE: $000002D5 VOL: 0
+;PCODE: $000002D6 VOL: 0
+; 0000 01E3             };
+;PCODE: $000002D7 VOL: 0
+; 0000 01E4             //*******************************************
+; 0000 01E5             if(KeyV[i] != 0x12 && KeyV[i] != 0xF0)
+;PCODE: $000002D8 VOL: 0
+;PCODE: $000002D9 VOL: 0
+;PCODE: $000002DA VOL: 0
+;PCODE: $000002DB VOL: 0
+;PCODE: $000002DC VOL: 0
+;PCODE: $000002DD VOL: 0
+;PCODE: $000002DE VOL: 0
+;PCODE: $000002DF VOL: 0
+;PCODE: $000002E0 VOL: 0
+;PCODE: $000002E1 VOL: 0
+;PCODE: $000002E2 VOL: 0
+;PCODE: $000002E3 VOL: 0
+;PCODE: $000002E4 VOL: 0
+; 0000 01E6             {
+; 0000 01E7                 if (flag) KeyV[++j] = KeyU[KeyV[i++]];
+;PCODE: $000002E5 VOL: 0
+;PCODE: $000002E6 VOL: 0
+;PCODE: $000002E7 VOL: 0
+;PCODE: $000002E8 VOL: 0
+;PCODE: $000002E9 VOL: 0
+;PCODE: $000002EA VOL: 0
+;PCODE: $000002EB VOL: 0
+;PCODE: $000002EC VOL: 0
+;PCODE: $000002ED VOL: 0
+;PCODE: $000002EE VOL: 0
+;PCODE: $000002EF VOL: 0
+;PCODE: $000002F0 VOL: 0
+;PCODE: $000002F1 VOL: 0
+;PCODE: $000002F2 VOL: 0
+;PCODE: $000002F3 VOL: 0
+;PCODE: $000002F4 VOL: 0
+; 0000 01E8                 else KeyV[++j] = KeyD[KeyV[i++]];
+;PCODE: $000002F5 VOL: 0
+;PCODE: $000002F6 VOL: 0
+;PCODE: $000002F7 VOL: 0
+;PCODE: $000002F8 VOL: 0
+;PCODE: $000002F9 VOL: 0
+;PCODE: $000002FA VOL: 0
+;PCODE: $000002FB VOL: 0
+;PCODE: $000002FC VOL: 0
+;PCODE: $000002FD VOL: 0
+;PCODE: $000002FE VOL: 0
+;PCODE: $000002FF VOL: 0
+;PCODE: $00000300 VOL: 0
+;PCODE: $00000301 VOL: 0
+;PCODE: $00000302 VOL: 0
+;PCODE: $00000303 VOL: 0
+; 0000 01E9             }
+;PCODE: $00000304 VOL: 0
+; 0000 01EA         }
+;PCODE: $00000305 VOL: 0
+;PCODE: $00000306 VOL: 0
+;PCODE: $00000307 VOL: 0
+; 0000 01EB //        KeyV[++j] = 0x0A;
+; 0000 01EC         flag = 0;
+;PCODE: $00000308 VOL: 0
+;PCODE: $00000309 VOL: 0
+;PCODE: $0000030A VOL: 0
+; 0000 01ED         addr=address;
+;PCODE: $0000030B VOL: 0
+;PCODE: $0000030C VOL: 0
+; 0000 01EE         add = zna+1;
+;PCODE: $0000030D VOL: 0
+;PCODE: $0000030E VOL: 0
+;PCODE: $0000030F VOL: 0
+;PCODE: $00000310 VOL: 0
+; 0000 01EF         for(i=0;i<10;i++)         // Поиск совпадающий номеров
+;PCODE: $00000311 VOL: 0
+;PCODE: $00000312 VOL: 0
+;PCODE: $00000313 VOL: 0
+;PCODE: $00000314 VOL: 0
+;PCODE: $00000315 VOL: 0
+;PCODE: $00000316 VOL: 0
+;PCODE: $00000317 VOL: 0
+; 0000 01F0         {
+; 0000 01F1             n=j;
+;PCODE: $00000318 VOL: 0
+;PCODE: $00000319 VOL: 0
+; 0000 01F2             while (n > 0)
+;PCODE: $0000031A VOL: 0
+;PCODE: $0000031B VOL: 0
+;PCODE: $0000031C VOL: 0
+;PCODE: $0000031D VOL: 0
+; 0000 01F3             {
+; 0000 01F4                 addr1 = addr>>8;
+;PCODE: $0000031E VOL: 0
+;PCODE: $0000031F VOL: 0
+; 0000 01F5                 addr0 = addr -  (unsigned int) addr1*256 ;
+;PCODE: $00000320 VOL: 0
+;PCODE: $00000321 VOL: 0
+;PCODE: $00000322 VOL: 0
+;PCODE: $00000323 VOL: 0
+;PCODE: $00000324 VOL: 0
+; 0000 01F6                 KeyVal = eep_read(addr1,addr0);
+;PCODE: $00000325 VOL: 0
+;PCODE: $00000326 VOL: 0
+;PCODE: $00000327 VOL: 0
+;PCODE: $00000328 VOL: 0
+; 0000 01F7                 if (KeyVal != KeyV[n])
+;PCODE: $00000329 VOL: 0
+;PCODE: $0000032A VOL: 0
+;PCODE: $0000032B VOL: 0
+;PCODE: $0000032C VOL: 0
+;PCODE: $0000032D VOL: 0
+;PCODE: $0000032E VOL: 0
+; 0000 01F8                 {
+; 0000 01F9                     flag = 0;
+;PCODE: $0000032F VOL: 0
+;PCODE: $00000330 VOL: 0
+;PCODE: $00000331 VOL: 0
+; 0000 01FA                     addr = addr - n;
+;PCODE: $00000332 VOL: 0
+;PCODE: $00000333 VOL: 0
+;PCODE: $00000334 VOL: 0
+;PCODE: $00000335 VOL: 0
+;PCODE: $00000336 VOL: 0
+; 0000 01FB                     n = 0;
+;PCODE: $00000337 VOL: 0
+; 0000 01FC                 }
+; 0000 01FD                 else
+;PCODE: $00000338 VOL: 0
+;PCODE: $00000339 VOL: 0
+; 0000 01FE                 {
+; 0000 01FF                     flag = 1;
+;PCODE: $0000033A VOL: 0
+;PCODE: $0000033B VOL: 0
+;PCODE: $0000033C VOL: 0
+; 0000 0200                     addr = addr - 1;
+;PCODE: $0000033D VOL: 0
+;PCODE: $0000033E VOL: 0
+;PCODE: $0000033F VOL: 0
+; 0000 0201                     if(--n == 0) i = 21;
+;PCODE: $00000340 VOL: 0
+;PCODE: $00000341 VOL: 0
+;PCODE: $00000342 VOL: 0
+;PCODE: $00000343 VOL: 0
+; 0000 0202                 }
+;PCODE: $00000344 VOL: 0
+;PCODE: $00000345 VOL: 0
+; 0000 0203                 if (addr < 3)
+;PCODE: $00000346 VOL: 0
+;PCODE: $00000347 VOL: 0
+;PCODE: $00000348 VOL: 0
+; 0000 0204                 {
+; 0000 0205                     if (i < 10) i = 10;
+;PCODE: $00000349 VOL: 0
+;PCODE: $0000034A VOL: 0
+;PCODE: $0000034B VOL: 0
+;PCODE: $0000034C VOL: 0
+;PCODE: $0000034D VOL: 0
+; 0000 0206                     break;
+;PCODE: $0000034E VOL: 0
+;PCODE: $0000034F VOL: 0
+; 0000 0207                 }
+; 0000 0208             }
+;PCODE: $00000350 VOL: 0
+;PCODE: $00000351 VOL: 0
+;PCODE: $00000352 VOL: 0
+; 0000 0209             if(add != j) flag = 1;
+;PCODE: $00000353 VOL: 0
+;PCODE: $00000354 VOL: 0
+;PCODE: $00000355 VOL: 0
+;PCODE: $00000356 VOL: 0
+;PCODE: $00000357 VOL: 0
+;PCODE: $00000358 VOL: 0
+;PCODE: $00000359 VOL: 0
+;PCODE: $0000035A VOL: 0
+; 0000 020A             if (flag && i < 10) i = 10;
+;PCODE: $0000035B VOL: 0
+;PCODE: $0000035C VOL: 0
+;PCODE: $0000035D VOL: 0
+;PCODE: $0000035E VOL: 0
+;PCODE: $0000035F VOL: 0
+;PCODE: $00000360 VOL: 0
+;PCODE: $00000361 VOL: 0
+;PCODE: $00000362 VOL: 0
+;PCODE: $00000363 VOL: 0
+;PCODE: $00000364 VOL: 0
+;PCODE: $00000365 VOL: 0
+;PCODE: $00000366 VOL: 0
+;PCODE: $00000367 VOL: 0
+; 0000 020B 
+; 0000 020C         }
+;PCODE: $00000368 VOL: 0
+;PCODE: $00000369 VOL: 0
+;PCODE: $0000036A VOL: 0
+;PCODE: $0000036B VOL: 0
+;PCODE: $0000036C VOL: 0
+; 0000 020D 
+; 0000 020E         if (flag)
+;PCODE: $0000036D VOL: 0
+;PCODE: $0000036E VOL: 0
+;PCODE: $0000036F VOL: 0
+; 0000 020F         {
+; 0000 0210             zvuk = 0;
+;PCODE: $00000370 VOL: 0
+;PCODE: $00000371 VOL: 0
+; 0000 0211             lcd_clear();
+;PCODE: $00000372 VOL: 0
+; 0000 0212             if (i > 20) lcd_putsf("POVTOR! j = ");
+;PCODE: $00000373 VOL: 0
+;PCODE: $00000374 VOL: 0
+;PCODE: $00000375 VOL: 0
+;PCODE: $00000376 VOL: 0
+;PCODE: $00000377 VOL: 0
+;PCODE: $00000378 VOL: 0
+; 0000 0213             else lcd_putsf("ERR! j = ");
+;PCODE: $00000379 VOL: 0
+;PCODE: $0000037A VOL: 0
+;PCODE: $0000037B VOL: 0
+;PCODE: $0000037C VOL: 0
+;PCODE: $0000037D VOL: 0
+; 0000 0214             itoa(j-1, conv);
+;PCODE: $0000037E VOL: 0
+;PCODE: $0000037F VOL: 0
+;PCODE: $00000380 VOL: 0
+;PCODE: $00000381 VOL: 0
+;PCODE: $00000382 VOL: 0
+;PCODE: $00000383 VOL: 0
+;PCODE: $00000384 VOL: 0
+; 0000 0215             lcd_puts(conv);
+;PCODE: $00000385 VOL: 0
+;PCODE: $00000386 VOL: 0
+; 0000 0216             lcd_gotoxy(0,1);
+;PCODE: $00000387 VOL: 0
+;PCODE: $00000388 VOL: 0
+;PCODE: $00000389 VOL: 0
+;PCODE: $0000038A VOL: 0
+; 0000 0217             delay_ms(50);
+;PCODE: $0000038B VOL: 0
+;PCODE: $0000038C VOL: 0
+;PCODE: $0000038D VOL: 0
+; 0000 0218             zvuk = 1;
+;PCODE: $0000038E VOL: 0
+;PCODE: $0000038F VOL: 0
+; 0000 0219             delay_ms(50) ;
+;PCODE: $00000390 VOL: 0
+;PCODE: $00000391 VOL: 0
+;PCODE: $00000392 VOL: 0
+; 0000 021A 
+; 0000 021B         }
+; 0000 021C         else
+;PCODE: $00000393 VOL: 0
+;PCODE: $00000394 VOL: 0
+; 0000 021D         {
+; 0000 021E             n = 0;
+;PCODE: $00000395 VOL: 0
+; 0000 021F             addr = address;
+;PCODE: $00000396 VOL: 0
+;PCODE: $00000397 VOL: 0
+; 0000 0220             flag = 1;
+;PCODE: $00000398 VOL: 0
+;PCODE: $00000399 VOL: 0
+;PCODE: $0000039A VOL: 0
+; 0000 0221             lcd_clear();
+;PCODE: $0000039B VOL: 0
+; 0000 0222             while(++n <= j)
+;PCODE: $0000039C VOL: 0
+;PCODE: $0000039D VOL: 0
+;PCODE: $0000039E VOL: 0
+;PCODE: $0000039F VOL: 0
+;PCODE: $000003A0 VOL: 0
+; 0000 0223             {
+; 0000 0224                 addr = addr + 1;
+;PCODE: $000003A1 VOL: 0
+;PCODE: $000003A2 VOL: 0
+;PCODE: $000003A3 VOL: 0
+; 0000 0225                 addr1 = addr>>8;
+;PCODE: $000003A4 VOL: 0
+;PCODE: $000003A5 VOL: 0
+; 0000 0226                 addr0 = addr -  (unsigned int) addr1*256 ;
+;PCODE: $000003A6 VOL: 0
+;PCODE: $000003A7 VOL: 0
+;PCODE: $000003A8 VOL: 0
+;PCODE: $000003A9 VOL: 0
+;PCODE: $000003AA VOL: 0
+; 0000 0227                 eep_write(addr1,addr0,KeyV[n]);
+;PCODE: $000003AB VOL: 0
+;PCODE: $000003AC VOL: 0
+;PCODE: $000003AD VOL: 0
+;PCODE: $000003AE VOL: 0
+;PCODE: $000003AF VOL: 0
+;PCODE: $000003B0 VOL: 0
+;PCODE: $000003B1 VOL: 0
+; 0000 0228                 if  (eep_read(addr1,addr0) != KeyV[n])
+;PCODE: $000003B2 VOL: 0
+;PCODE: $000003B3 VOL: 0
+;PCODE: $000003B4 VOL: 0
+;PCODE: $000003B5 VOL: 0
+;PCODE: $000003B6 VOL: 0
+;PCODE: $000003B7 VOL: 0
+;PCODE: $000003B8 VOL: 0
+;PCODE: $000003B9 VOL: 0
+;PCODE: $000003BA VOL: 0
+;PCODE: $000003BB VOL: 0
+; 0000 0229                 {
+; 0000 022A                     flag = 0;
+;PCODE: $000003BC VOL: 0
+;PCODE: $000003BD VOL: 0
+;PCODE: $000003BE VOL: 0
+; 0000 022B                     err();  // проверка записи
+;PCODE: $000003BF VOL: 0
+; 0000 022C                     break;
+;PCODE: $000003C0 VOL: 0
+; 0000 022D                 }
+; 0000 022E                 if (zna > 15) { if (KeyV[n] != 0x0A) lcd_putchar(KeyV[n]); } else lcd_putchar(KeyV[n]);
+;PCODE: $000003C1 VOL: 0
+;PCODE: $000003C2 VOL: 0
+;PCODE: $000003C3 VOL: 0
+;PCODE: $000003C4 VOL: 0
+;PCODE: $000003C5 VOL: 0
+;PCODE: $000003C6 VOL: 0
+;PCODE: $000003C7 VOL: 0
+;PCODE: $000003C8 VOL: 0
+;PCODE: $000003C9 VOL: 0
+;PCODE: $000003CA VOL: 0
+;PCODE: $000003CB VOL: 0
+;PCODE: $000003CC VOL: 0
+;PCODE: $000003CD VOL: 0
+;PCODE: $000003CE VOL: 0
+;PCODE: $000003CF VOL: 0
+;PCODE: $000003D0 VOL: 0
+;PCODE: $000003D1 VOL: 0
+;PCODE: $000003D2 VOL: 0
+;PCODE: $000003D3 VOL: 0
+;PCODE: $000003D4 VOL: 0
+;PCODE: $000003D5 VOL: 0
+;PCODE: $000003D6 VOL: 0
+;PCODE: $000003D7 VOL: 0
+; 0000 022F             }
+;PCODE: $000003D8 VOL: 0
+;PCODE: $000003D9 VOL: 0
+;PCODE: $000003DA VOL: 0
+; 0000 0230             if (flag)
+;PCODE: $000003DB VOL: 0
+;PCODE: $000003DC VOL: 0
+;PCODE: $000003DD VOL: 0
+; 0000 0231             {
+; 0000 0232                 eep_write(0,0,addr1);
+;PCODE: $000003DE VOL: 0
+;PCODE: $000003DF VOL: 0
+;PCODE: $000003E0 VOL: 0
+;PCODE: $000003E1 VOL: 0
+;PCODE: $000003E2 VOL: 0
+;PCODE: $000003E3 VOL: 0
+; 0000 0233                 eep_write(0,1,addr0);
+;PCODE: $000003E4 VOL: 0
+;PCODE: $000003E5 VOL: 0
+;PCODE: $000003E6 VOL: 0
+;PCODE: $000003E7 VOL: 0
+;PCODE: $000003E8 VOL: 0
+;PCODE: $000003E9 VOL: 0
+; 0000 0234                 if  (eep_read(0,0) != addr1)
+;PCODE: $000003EA VOL: 0
+;PCODE: $000003EB VOL: 0
+;PCODE: $000003EC VOL: 0
+;PCODE: $000003ED VOL: 0
+;PCODE: $000003EE VOL: 0
+;PCODE: $000003EF VOL: 0
+; 0000 0235                 {
+; 0000 0236                     err();  // проверка записи
+;PCODE: $000003F0 VOL: 0
+; 0000 0237                     break;
+;PCODE: $000003F1 VOL: 0
+; 0000 0238                 }
+; 0000 0239                 if  (eep_read(0,1) != addr0)
+;PCODE: $000003F2 VOL: 0
+;PCODE: $000003F3 VOL: 0
+;PCODE: $000003F4 VOL: 0
+;PCODE: $000003F5 VOL: 0
+;PCODE: $000003F6 VOL: 0
+;PCODE: $000003F7 VOL: 0
+;PCODE: $000003F8 VOL: 0
+; 0000 023A                 {
+; 0000 023B                     err();  // проверка записи
+;PCODE: $000003F9 VOL: 0
+; 0000 023C                     break;
+;PCODE: $000003FA VOL: 0
+; 0000 023D                 }
+; 0000 023E             }
+;PCODE: $000003FB VOL: 0
+; 0000 023F             address = addr;
+;PCODE: $000003FC VOL: 0
+;PCODE: $000003FD VOL: 0
+;PCODE: $000003FE VOL: 0
+; 0000 0240         }
+;PCODE: $000003FF VOL: 0
+; 0000 0241         zvuk = 0;
+;PCODE: $00000400 VOL: 0
+;PCODE: $00000401 VOL: 0
+; 0000 0242         addr = address;
+;PCODE: $00000402 VOL: 0
+;PCODE: $00000403 VOL: 0
+; 0000 0243         lcd_putsf(" Bcero ");
+;PCODE: $00000404 VOL: 0
+;PCODE: $00000405 VOL: 0
+;PCODE: $00000406 VOL: 0
+; 0000 0244         add = zna+1;
+;PCODE: $00000407 VOL: 0
+;PCODE: $00000408 VOL: 0
+;PCODE: $00000409 VOL: 0
+;PCODE: $0000040A VOL: 0
+; 0000 0245         itoa(addr/add, conv);
+;PCODE: $0000040B VOL: 0
+;PCODE: $0000040C VOL: 0
+;PCODE: $0000040D VOL: 0
+;PCODE: $0000040E VOL: 0
+;PCODE: $0000040F VOL: 0
+;PCODE: $00000410 VOL: 0
+; 0000 0246         k = 0;
+;PCODE: $00000411 VOL: 0
+; 0000 0247         j = 0;
+;PCODE: $00000412 VOL: 0
+; 0000 0248         ravno = 0;
+;PCODE: $00000413 VOL: 0
+;PCODE: $00000414 VOL: 0
+;PCODE: $00000415 VOL: 0
+; 0000 0249         delay_ms(50);
+;PCODE: $00000416 VOL: 0
+;PCODE: $00000417 VOL: 0
+;PCODE: $00000418 VOL: 0
+; 0000 024A         lcd_puts(conv);
+;PCODE: $00000419 VOL: 0
+;PCODE: $0000041A VOL: 0
+; 0000 024B         zvuk = 1;
+;PCODE: $0000041B VOL: 0
+;PCODE: $0000041C VOL: 0
+; 0000 024C     }
+; 0000 024D 
+; 0000 024E     if (k == 4)
+;PCODE: $0000041D VOL: 0
+;PCODE: $0000041E VOL: 0
+;PCODE: $0000041F VOL: 0
+;PCODE: $00000420 VOL: 0
+; 0000 024F     {
+; 0000 0250         zvuk = 0;
+;PCODE: $00000421 VOL: 0
+;PCODE: $00000422 VOL: 0
+; 0000 0251         addr = address;
+;PCODE: $00000423 VOL: 0
+;PCODE: $00000424 VOL: 0
+; 0000 0252         delay_ms(50);
+;PCODE: $00000425 VOL: 0
+;PCODE: $00000426 VOL: 0
+;PCODE: $00000427 VOL: 0
+; 0000 0253         zvuk = 1;
+;PCODE: $00000428 VOL: 0
+;PCODE: $00000429 VOL: 0
+; 0000 0254         lcd_clear();
+;PCODE: $0000042A VOL: 0
+; 0000 0255         lcd_putsf("Bcero = ");
+;PCODE: $0000042B VOL: 0
+;PCODE: $0000042C VOL: 0
+;PCODE: $0000042D VOL: 0
+; 0000 0256         add = zna+1;
+;PCODE: $0000042E VOL: 0
+;PCODE: $0000042F VOL: 0
+;PCODE: $00000430 VOL: 0
+;PCODE: $00000431 VOL: 0
+; 0000 0257         itoa(addr/add, conv);
+;PCODE: $00000432 VOL: 0
+;PCODE: $00000433 VOL: 0
+;PCODE: $00000434 VOL: 0
+;PCODE: $00000435 VOL: 0
+;PCODE: $00000436 VOL: 0
+;PCODE: $00000437 VOL: 0
+; 0000 0258         delay_ms(50);
+;PCODE: $00000438 VOL: 0
+;PCODE: $00000439 VOL: 0
+;PCODE: $0000043A VOL: 0
+; 0000 0259         lcd_puts(conv);
+;PCODE: $0000043B VOL: 0
+;PCODE: $0000043C VOL: 0
+; 0000 025A         itoa(zna, conv);
+;PCODE: $0000043D VOL: 0
+;PCODE: $0000043E VOL: 0
+;PCODE: $0000043F VOL: 0
+;PCODE: $00000440 VOL: 0
+;PCODE: $00000441 VOL: 0
+; 0000 025B         lcd_gotoxy(0,1);
+;PCODE: $00000442 VOL: 0
+;PCODE: $00000443 VOL: 0
+;PCODE: $00000444 VOL: 0
+;PCODE: $00000445 VOL: 0
+; 0000 025C         lcd_putsf("3HAKOB = ");
+;PCODE: $00000446 VOL: 0
+;PCODE: $00000447 VOL: 0
+;PCODE: $00000448 VOL: 0
+; 0000 025D         lcd_puts(conv);
+;PCODE: $00000449 VOL: 0
+;PCODE: $0000044A VOL: 0
+; 0000 025E         delay_ms(500);
+;PCODE: $0000044B VOL: 0
+;PCODE: $0000044C VOL: 0
+; 0000 025F 
+; 0000 0260         k = 0;
+;PCODE: $0000044D VOL: 0
+; 0000 0261         j = 0;
+;PCODE: $0000044E VOL: 0
+; 0000 0262 
+; 0000 0263     }
+; 0000 0264 
+; 0000 0265     if (k == 3)
+;PCODE: $0000044F VOL: 0
+;PCODE: $00000450 VOL: 0
+;PCODE: $00000451 VOL: 0
+;PCODE: $00000452 VOL: 0
+; 0000 0266     {
+; 0000 0267         zvuk = 0;
+;PCODE: $00000453 VOL: 0
+;PCODE: $00000454 VOL: 0
+; 0000 0268         delay_ms(50);
+;PCODE: $00000455 VOL: 0
+;PCODE: $00000456 VOL: 0
+;PCODE: $00000457 VOL: 0
+; 0000 0269         lcd_clear();
+;PCODE: $00000458 VOL: 0
+; 0000 026A         lcd_putsf(" Wait... ");
+;PCODE: $00000459 VOL: 0
+;PCODE: $0000045A VOL: 0
+;PCODE: $0000045B VOL: 0
+; 0000 026B         zvuk = 1;
+;PCODE: $0000045C VOL: 0
+;PCODE: $0000045D VOL: 0
+; 0000 026C         j = n;
+;PCODE: $0000045E VOL: 0
+;PCODE: $0000045F VOL: 0
+; 0000 026D         n=0;
+;PCODE: $00000460 VOL: 0
+; 0000 026E         while (addr > 3)
+;PCODE: $00000461 VOL: 0
+;PCODE: $00000462 VOL: 0
+;PCODE: $00000463 VOL: 0
+;PCODE: $00000464 VOL: 0
+; 0000 026F         {
+; 0000 0270             addr = addr - 1;
+;PCODE: $00000465 VOL: 0
+;PCODE: $00000466 VOL: 0
+;PCODE: $00000467 VOL: 0
+; 0000 0271             addr1 = addr>>8;
+;PCODE: $00000468 VOL: 0
+;PCODE: $00000469 VOL: 0
+; 0000 0272             addr0 = addr -  (unsigned int) addr1*256 ;
+;PCODE: $0000046A VOL: 0
+;PCODE: $0000046B VOL: 0
+;PCODE: $0000046C VOL: 0
+;PCODE: $0000046D VOL: 0
+;PCODE: $0000046E VOL: 0
+; 0000 0273             KeyVal = eep_read(addr1,addr0);
+;PCODE: $0000046F VOL: 0
+;PCODE: $00000470 VOL: 0
+;PCODE: $00000471 VOL: 0
+;PCODE: $00000472 VOL: 0
+; 0000 0274             if (KeyVal ==  0x0A )
+;PCODE: $00000473 VOL: 0
+;PCODE: $00000474 VOL: 0
+;PCODE: $00000475 VOL: 0
+; 0000 0275             {
+; 0000 0276                break;
+;PCODE: $00000476 VOL: 0
+; 0000 0277             }
+; 0000 0278         }
+;PCODE: $00000477 VOL: 0
+;PCODE: $00000478 VOL: 0
+;PCODE: $00000479 VOL: 0
+; 0000 0279         zvuk = 0;
+;PCODE: $0000047A VOL: 0
+;PCODE: $0000047B VOL: 0
+; 0000 027A         lcd_clear();
+;PCODE: $0000047C VOL: 0
+; 0000 027B         lcd_putsf("Bcero = ");
+;PCODE: $0000047D VOL: 0
+;PCODE: $0000047E VOL: 0
+;PCODE: $0000047F VOL: 0
+; 0000 027C         add = zna+1;
+;PCODE: $00000480 VOL: 0
+;PCODE: $00000481 VOL: 0
+;PCODE: $00000482 VOL: 0
+;PCODE: $00000483 VOL: 0
+; 0000 027D         itoa(addr/add, conv);
+;PCODE: $00000484 VOL: 0
+;PCODE: $00000485 VOL: 0
+;PCODE: $00000486 VOL: 0
+;PCODE: $00000487 VOL: 0
+;PCODE: $00000488 VOL: 0
+;PCODE: $00000489 VOL: 0
+; 0000 027E         delay_ms(50);
+;PCODE: $0000048A VOL: 0
+;PCODE: $0000048B VOL: 0
+;PCODE: $0000048C VOL: 0
+; 0000 027F         lcd_puts(conv);
+;PCODE: $0000048D VOL: 0
+;PCODE: $0000048E VOL: 0
+; 0000 0280         itoa(zna, conv);
+;PCODE: $0000048F VOL: 0
+;PCODE: $00000490 VOL: 0
+;PCODE: $00000491 VOL: 0
+;PCODE: $00000492 VOL: 0
+;PCODE: $00000493 VOL: 0
+; 0000 0281         lcd_gotoxy(0,1);
+;PCODE: $00000494 VOL: 0
+;PCODE: $00000495 VOL: 0
+;PCODE: $00000496 VOL: 0
+;PCODE: $00000497 VOL: 0
+; 0000 0282         lcd_putsf("3HAKOB = ");
+;PCODE: $00000498 VOL: 0
+;PCODE: $00000499 VOL: 0
+;PCODE: $0000049A VOL: 0
+; 0000 0283         lcd_puts(conv);
+;PCODE: $0000049B VOL: 0
+;PCODE: $0000049C VOL: 0
+; 0000 0284         zvuk = 1;
+;PCODE: $0000049D VOL: 0
+;PCODE: $0000049E VOL: 0
+; 0000 0285         delay_ms(500);
+;PCODE: $0000049F VOL: 0
+;PCODE: $000004A0 VOL: 0
+; 0000 0286         address = addr;
+;PCODE: $000004A1 VOL: 0
+;PCODE: $000004A2 VOL: 0
+; 0000 0287         k = 0;
+;PCODE: $000004A3 VOL: 0
+; 0000 0288         j = 0;
+;PCODE: $000004A4 VOL: 0
+; 0000 0289 
+; 0000 028A     }
+; 0000 028B 
+; 0000 028C     if (k == 5)
+;PCODE: $000004A5 VOL: 0
+;PCODE: $000004A6 VOL: 0
+;PCODE: $000004A7 VOL: 0
+;PCODE: $000004A8 VOL: 0
+; 0000 028D     {
+; 0000 028E         zvuk = 0;
+;PCODE: $000004A9 VOL: 0
+;PCODE: $000004AA VOL: 0
+; 0000 028F         delay_ms(50);
+;PCODE: $000004AB VOL: 0
+;PCODE: $000004AC VOL: 0
+;PCODE: $000004AD VOL: 0
+; 0000 0290         flag = 0;
+;PCODE: $000004AE VOL: 0
+;PCODE: $000004AF VOL: 0
+;PCODE: $000004B0 VOL: 0
+; 0000 0291         lcd_clear();
+;PCODE: $000004B1 VOL: 0
+; 0000 0292         lcd_putsf(" 3AHOBO?  Y / N ");
+;PCODE: $000004B2 VOL: 0
+;PCODE: $000004B3 VOL: 0
+;PCODE: $000004B4 VOL: 0
+; 0000 0293         zvuk = 1;
+;PCODE: $000004B5 VOL: 0
+;PCODE: $000004B6 VOL: 0
+; 0000 0294         while (kn1 && kn3);
+;PCODE: $000004B7 VOL: 0
+;PCODE: $000004B8 VOL: 0
+;PCODE: $000004B9 VOL: 0
+;PCODE: $000004BA VOL: 0
+;PCODE: $000004BB VOL: 0
+;PCODE: $000004BC VOL: 0
+;PCODE: $000004BD VOL: 0
+;PCODE: $000004BE VOL: 0
+;PCODE: $000004BF VOL: 0
+;PCODE: $000004C0 VOL: 0
+;PCODE: $000004C1 VOL: 0
+;PCODE: $000004C2 VOL: 0
+;PCODE: $000004C3 VOL: 0
+; 0000 0295         while(!kn2)
+;PCODE: $000004C4 VOL: 0
+;PCODE: $000004C5 VOL: 0
+;PCODE: $000004C6 VOL: 0
+;PCODE: $000004C7 VOL: 0
+; 0000 0296         {
+; 0000 0297             if(!kn3)
+;PCODE: $000004C8 VOL: 0
+;PCODE: $000004C9 VOL: 0
+;PCODE: $000004CA VOL: 0
+; 0000 0298             {
+; 0000 0299                 zvuk = 1;
+;PCODE: $000004CB VOL: 0
+;PCODE: $000004CC VOL: 0
+; 0000 029A                 lcd_clear();
+;PCODE: $000004CD VOL: 0
+; 0000 029B                 zna++;
+;PCODE: $000004CE VOL: 0
+;PCODE: $000004CF VOL: 0
+;PCODE: $000004D0 VOL: 0
+; 0000 029C                 itoa(zna, conv);
+;PCODE: $000004D1 VOL: 0
+;PCODE: $000004D2 VOL: 0
+;PCODE: $000004D3 VOL: 0
+;PCODE: $000004D4 VOL: 0
+;PCODE: $000004D5 VOL: 0
+; 0000 029D                 delay_ms(200);
+;PCODE: $000004D6 VOL: 0
+;PCODE: $000004D7 VOL: 0
+;PCODE: $000004D8 VOL: 0
+; 0000 029E                 lcd_putsf("3HAKOB = ");
+;PCODE: $000004D9 VOL: 0
+;PCODE: $000004DA VOL: 0
+;PCODE: $000004DB VOL: 0
+; 0000 029F                 lcd_puts(conv);
+;PCODE: $000004DC VOL: 0
+;PCODE: $000004DD VOL: 0
+; 0000 02A0                 zvuk = 1;
+;PCODE: $000004DE VOL: 0
+;PCODE: $000004DF VOL: 0
+; 0000 02A1                 delay_ms(200);
+;PCODE: $000004E0 VOL: 0
+;PCODE: $000004E1 VOL: 0
+;PCODE: $000004E2 VOL: 0
+; 0000 02A2             }
+; 0000 02A3             if(!kn1)
+;PCODE: $000004E3 VOL: 0
+;PCODE: $000004E4 VOL: 0
+;PCODE: $000004E5 VOL: 0
+;PCODE: $000004E6 VOL: 0
+; 0000 02A4             {
+; 0000 02A5                 zvuk = 1;
+;PCODE: $000004E7 VOL: 0
+;PCODE: $000004E8 VOL: 0
+; 0000 02A6                 lcd_clear();
+;PCODE: $000004E9 VOL: 0
+; 0000 02A7                 zna--;
+;PCODE: $000004EA VOL: 0
+;PCODE: $000004EB VOL: 0
+;PCODE: $000004EC VOL: 0
+; 0000 02A8                 itoa(zna, conv);
+;PCODE: $000004ED VOL: 0
+;PCODE: $000004EE VOL: 0
+;PCODE: $000004EF VOL: 0
+;PCODE: $000004F0 VOL: 0
+;PCODE: $000004F1 VOL: 0
+; 0000 02A9                 delay_ms(200);
+;PCODE: $000004F2 VOL: 0
+;PCODE: $000004F3 VOL: 0
+;PCODE: $000004F4 VOL: 0
+; 0000 02AA                 lcd_putsf("3HAKOB = ");
+;PCODE: $000004F5 VOL: 0
+;PCODE: $000004F6 VOL: 0
+;PCODE: $000004F7 VOL: 0
+; 0000 02AB                 lcd_puts(conv);
+;PCODE: $000004F8 VOL: 0
+;PCODE: $000004F9 VOL: 0
+; 0000 02AC                 zvuk = 1;
+;PCODE: $000004FA VOL: 0
+;PCODE: $000004FB VOL: 0
+; 0000 02AD                 delay_ms(200);
+;PCODE: $000004FC VOL: 0
+;PCODE: $000004FD VOL: 0
+;PCODE: $000004FE VOL: 0
+; 0000 02AE             }
+; 0000 02AF              flag = 1;
+;PCODE: $000004FF VOL: 0
+;PCODE: $00000500 VOL: 0
+;PCODE: $00000501 VOL: 0
+;PCODE: $00000502 VOL: 0
+; 0000 02B0         }
+;PCODE: $00000503 VOL: 0
+;PCODE: $00000504 VOL: 0
+; 0000 02B1         if (flag)
+;PCODE: $00000505 VOL: 0
+;PCODE: $00000506 VOL: 0
+;PCODE: $00000507 VOL: 0
+; 0000 02B2         {
+; 0000 02B3             eep_write(0,2,zna);
+;PCODE: $00000508 VOL: 0
+;PCODE: $00000509 VOL: 0
+;PCODE: $0000050A VOL: 0
+;PCODE: $0000050B VOL: 0
+;PCODE: $0000050C VOL: 0
+;PCODE: $0000050D VOL: 0
+; 0000 02B4             if  (eep_read(0,2) != zna)
+;PCODE: $0000050E VOL: 0
+;PCODE: $0000050F VOL: 0
+;PCODE: $00000510 VOL: 0
+;PCODE: $00000511 VOL: 0
+;PCODE: $00000512 VOL: 0
+;PCODE: $00000513 VOL: 0
+;PCODE: $00000514 VOL: 0
+;PCODE: $00000515 VOL: 0
+; 0000 02B5             {
+; 0000 02B6                 err();  // проверка записи
+;PCODE: $00000516 VOL: 0
+; 0000 02B7                 break;
+;PCODE: $00000517 VOL: 0
+; 0000 02B8             }
+; 0000 02B9 
+; 0000 02BA         }
+;PCODE: $00000518 VOL: 0
+; 0000 02BB         delay_ms(500);
+;PCODE: $00000519 VOL: 0
+;PCODE: $0000051A VOL: 0
+;PCODE: $0000051B VOL: 0
+; 0000 02BC         if (!kn3)    address = 2;
+;PCODE: $0000051C VOL: 0
+;PCODE: $0000051D VOL: 0
+;PCODE: $0000051E VOL: 0
+;PCODE: $0000051F VOL: 0
+;PCODE: $00000520 VOL: 0
+; 0000 02BD         addr = address;
+;PCODE: $00000521 VOL: 0
+;PCODE: $00000522 VOL: 0
+;PCODE: $00000523 VOL: 0
+; 0000 02BE         zvuk = 0;
+;PCODE: $00000524 VOL: 0
+;PCODE: $00000525 VOL: 0
+; 0000 02BF         lcd_clear();
+;PCODE: $00000526 VOL: 0
+; 0000 02C0         lcd_putsf("Bcero = ");
+;PCODE: $00000527 VOL: 0
+;PCODE: $00000528 VOL: 0
+;PCODE: $00000529 VOL: 0
+; 0000 02C1         add = zna+1;
+;PCODE: $0000052A VOL: 0
+;PCODE: $0000052B VOL: 0
+;PCODE: $0000052C VOL: 0
+;PCODE: $0000052D VOL: 0
+; 0000 02C2         itoa(addr/add, conv);
+;PCODE: $0000052E VOL: 0
+;PCODE: $0000052F VOL: 0
+;PCODE: $00000530 VOL: 0
+;PCODE: $00000531 VOL: 0
+;PCODE: $00000532 VOL: 0
+;PCODE: $00000533 VOL: 0
+; 0000 02C3         delay_ms(50);
+;PCODE: $00000534 VOL: 0
+;PCODE: $00000535 VOL: 0
+;PCODE: $00000536 VOL: 0
+; 0000 02C4         lcd_puts(conv);
+;PCODE: $00000537 VOL: 0
+;PCODE: $00000538 VOL: 0
+; 0000 02C5         itoa(zna, conv);
+;PCODE: $00000539 VOL: 0
+;PCODE: $0000053A VOL: 0
+;PCODE: $0000053B VOL: 0
+;PCODE: $0000053C VOL: 0
+;PCODE: $0000053D VOL: 0
+; 0000 02C6         lcd_gotoxy(0,1);
+;PCODE: $0000053E VOL: 0
+;PCODE: $0000053F VOL: 0
+;PCODE: $00000540 VOL: 0
+;PCODE: $00000541 VOL: 0
+; 0000 02C7         lcd_putsf("3HAKOB = ");
+;PCODE: $00000542 VOL: 0
+;PCODE: $00000543 VOL: 0
+;PCODE: $00000544 VOL: 0
+; 0000 02C8         lcd_puts(conv);
+;PCODE: $00000545 VOL: 0
+;PCODE: $00000546 VOL: 0
+; 0000 02C9         zvuk = 1;
+;PCODE: $00000547 VOL: 0
+;PCODE: $00000548 VOL: 0
+; 0000 02CA         j = 0;
+;PCODE: $00000549 VOL: 0
+; 0000 02CB         k = 0;
+;PCODE: $0000054A VOL: 0
+; 0000 02CC         delay_ms(500);
+;PCODE: $0000054B VOL: 0
+;PCODE: $0000054C VOL: 0
+; 0000 02CD     }
+; 0000 02CE 
+; 0000 02CF //----------------------------------------------------------------------------------
+; 0000 02D0 
+; 0000 02D1     if(k == 2)
+;PCODE: $0000054D VOL: 0
+;PCODE: $0000054E VOL: 0
+;PCODE: $0000054F VOL: 0
+;PCODE: $00000550 VOL: 0
+; 0000 02D2     {
+; 0000 02D3           lcd_clear();
+;PCODE: $00000551 VOL: 0
+; 0000 02D4           lcd_putsf("peredacha ");
+;PCODE: $00000552 VOL: 0
+;PCODE: $00000553 VOL: 0
+;PCODE: $00000554 VOL: 0
+; 0000 02D5           itoa(address, conv);
+;PCODE: $00000555 VOL: 0
+;PCODE: $00000556 VOL: 0
+;PCODE: $00000557 VOL: 0
+;PCODE: $00000558 VOL: 0
+; 0000 02D6           lcd_gotoxy(10,0);
+;PCODE: $00000559 VOL: 0
+;PCODE: $0000055A VOL: 0
+;PCODE: $0000055B VOL: 0
+;PCODE: $0000055C VOL: 0
+; 0000 02D7           lcd_puts(conv);
+;PCODE: $0000055D VOL: 0
+;PCODE: $0000055E VOL: 0
+; 0000 02D8                 addr = 2;
+;PCODE: $0000055F VOL: 0
+;PCODE: $00000560 VOL: 0
+; 0000 02D9                 putchar(eep_read(0,0));
+;PCODE: $00000561 VOL: 0
+;PCODE: $00000562 VOL: 0
+;PCODE: $00000563 VOL: 0
+;PCODE: $00000564 VOL: 0
+;PCODE: $00000565 VOL: 0
+;PCODE: $00000566 VOL: 0
+; 0000 02DA                 putchar(eep_read(0,1));
+;PCODE: $00000567 VOL: 0
+;PCODE: $00000568 VOL: 0
+;PCODE: $00000569 VOL: 0
+;PCODE: $0000056A VOL: 0
+;PCODE: $0000056B VOL: 0
+;PCODE: $0000056C VOL: 0
+; 0000 02DB                 putchar(0x0A);
+;PCODE: $0000056D VOL: 0
+;PCODE: $0000056E VOL: 0
+; 0000 02DC                 while (addr < address)
+;PCODE: $0000056F VOL: 0
+;PCODE: $00000570 VOL: 0
+;PCODE: $00000571 VOL: 0
+;PCODE: $00000572 VOL: 0
+;PCODE: $00000573 VOL: 0
+; 0000 02DD                 {
+; 0000 02DE                 addr=addr+1;
+;PCODE: $00000574 VOL: 0
+;PCODE: $00000575 VOL: 0
+;PCODE: $00000576 VOL: 0
+; 0000 02DF                 addr1 = addr>>8;
+;PCODE: $00000577 VOL: 0
+;PCODE: $00000578 VOL: 0
+; 0000 02E0                 addr0 = addr - (unsigned int) addr1*256 ;
+;PCODE: $00000579 VOL: 0
+;PCODE: $0000057A VOL: 0
+;PCODE: $0000057B VOL: 0
+;PCODE: $0000057C VOL: 0
+;PCODE: $0000057D VOL: 0
+; 0000 02E1                 read = eep_read(addr1,addr0);
+;PCODE: $0000057E VOL: 0
+;PCODE: $0000057F VOL: 0
+;PCODE: $00000580 VOL: 0
+;PCODE: $00000581 VOL: 0
+; 0000 02E2                 putchar(read);
+;PCODE: $00000582 VOL: 0
+;PCODE: $00000583 VOL: 0
+; 0000 02E3                 } ;
+;PCODE: $00000584 VOL: 0
+;PCODE: $00000585 VOL: 0
+; 0000 02E4       lcd_clear();
+;PCODE: $00000586 VOL: 0
+; 0000 02E5       lcd_putsf("konec peredachi!");
+;PCODE: $00000587 VOL: 0
+;PCODE: $00000588 VOL: 0
+;PCODE: $00000589 VOL: 0
+; 0000 02E6       lcd_gotoxy(0,1);
+;PCODE: $0000058A VOL: 0
+;PCODE: $0000058B VOL: 0
+;PCODE: $0000058C VOL: 0
+;PCODE: $0000058D VOL: 0
+; 0000 02E7       lcd_putsf("                ");
+;PCODE: $0000058E VOL: 0
+;PCODE: $0000058F VOL: 0
+;PCODE: $00000590 VOL: 0
+; 0000 02E8       k = 0;
+;PCODE: $00000591 VOL: 0
+; 0000 02E9 
+; 0000 02EA     }
+; 0000 02EB 
+; 0000 02EC 
+; 0000 02ED   };
+;PCODE: $00000592 VOL: 0
+;PCODE: $00000593 VOL: 0
+;PCODE: $00000594 VOL: 0
+; 0000 02EE }
+;PCODE: $00000595 VOL: 0
+;PCODE: $00000596 VOL: 0
+;PCODE: $00000597 VOL: 0

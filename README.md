@@ -1,0 +1,1 @@
+# SCANER_KOD_USB

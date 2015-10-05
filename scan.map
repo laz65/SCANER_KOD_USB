@@ -1,0 +1,45 @@
+RAM Allocation
+Variable                                                          Address   Size
+--------------------------------------------------------------------------------
+KeyV                                                              0160h      100
+zna                                                               01C4h        1
+address                                                           01C5h        2
+addr                                                              01C7h        2
+paus                                                              01C9h        2
+add                                                               01CBh        2
+conv                                                              01CDh        5
+rx_buffer                                                         01D2h       48
+rx_wr_index                                                       0202h        1
+rx_rd_index                                                       0203h        1
+rx_counter                                                        0204h        1
+tx_buffer                                                         0205h        8
+tx_wr_index                                                       020Dh        1
+tx_rd_index                                                       020Eh        1
+tx_counter                                                        020Fh        1
+_seed                                                             0210h        4
+_base_y                                                           0214h        4
+_lcd_x                                                            0218h        1
+_lcd_y                                                            0219h        1
+_lcd_maxx                                                         021Ah        1
+
+EEPROM Allocation
+Variable                                                          Address   Size
+--------------------------------------------------------------------------------
+
+Register Allocation
+Variable                                                          Register  Size
+--------------------------------------------------------------------------------
+read                                                              R5           1
+kluch                                                             R4           1
+k                                                                 R7           1
+dat                                                               R6           1
+addr0                                                             R9           1
+addr1                                                             R8           1
+n                                                                 R11          1
+j                                                                 R10          1
+i                                                                 R13          1
+KeyVal                                                            R12          1
+flag                                                              R2.0      1bit
+ravno                                                             R2.1      1bit
+enter                                                             R2.2      1bit
+rx_buffer_overflow                                                R2.3      1bit
